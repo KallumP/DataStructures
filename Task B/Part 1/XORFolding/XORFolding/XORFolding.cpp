@@ -40,6 +40,8 @@ public:
 	//takes a value and returns it's hashed key
 	int GetKey(int value) {
 
+		int key;
+
 		//turns the value into a string (makes traversal easier)
 		std::string valueString = std::to_string(value);
 
@@ -61,7 +63,6 @@ public:
 
 				//resets the buffer
 				buffer = "";
-
 			}
 		}
 
@@ -69,9 +70,9 @@ public:
 		if (buffer != "") {
 
 			//pads out the last division with 0s
-			for (int i = buffer.length(); i < digits; i++) 
+			for (int i = buffer.length(); i < digits; i++)
 				buffer += "0";
-			
+
 			//adds the buffer into the list of divded strings
 			valueStringDivided.push_back(buffer);
 
@@ -79,35 +80,38 @@ public:
 			buffer = "";
 		}
 
+		std::string foldBuffer = "";
 
-		int key;
-		int valueSquared;
-		std::string valueSquaredString;
+		//while there are still two divisions left
+		while (valueStringDivided.size() > 1) {
 
-		//squares the input value
-		valueSquared = value * value;
+			//loop through all numbers in the division
+			for (int i = 0; i < digits; i++) {
 
-		//checks if the result had enough digits
-		if (valueSquared < repeatSize)
+				//XORs the current digits
+				int a = valueStringDivided[0][i];
+				int b = valueStringDivided[1][i];
+				int c = a ^ b;
 
-			//repeats the algorithm recursively
-			valueSquared = GetKey(valueSquared);
+				//checks if the result was two digits
+				if (c > 9)
+					c -= 10;
 
-		//turns the result into a string (for easy traversal)
-		valueSquaredString = std::to_string(valueSquared);
+				//adds the result to the key string
+				foldBuffer += std::to_string(c);
+			}
 
-		//find the middle position
-		int middle = std::ceil(valueSquaredString.length() / 2.0) - 1;
+			//removes the first value
+			valueStringDivided.erase(valueStringDivided.begin());
 
-		//calculates how many digits to back from the middle
-		int halfDigits = std::floor(digits / 2);
+			//assigns the new first value to the result (ready to be folded onto the next division
+			valueStringDivided[0] = foldBuffer;
 
-		//gets the middle values
-		std::string keyString = valueSquaredString.substr(middle - halfDigits, digits);
+			foldBuffer = "";
+		}
 
-		//turns the middle value string into an integer
-		key = std::stoi(keyString);
-
+		//gets the last value left in the list of divisions
+		key = std::stoi(valueStringDivided[0]);
 		return key;
 	}
 
@@ -135,112 +139,89 @@ std::vector<int> keys;
 void TestExample() {
 	int value;
 
-	value = 23;
+	//tests values used in report example
+	value = 234561;
+	std::cout << "Value: " << value << " -> " << a.GetKey(value) << std::endl;
+
+	value = 152132344;
+	std::cout << "Value: " << value << " -> " << a.GetKey(value) << std::endl;
+
+	value = 81223;
 	std::cout << "Value: " << value << " -> " << a.GetKey(value) << std::endl;
 
 
-	value = 0;
-	std::cout << "Value: " << value << " -> " << a.GetKey(value) << std::endl;
-
-	value = 1;
-	std::cout << "Value: " << value << " -> " << a.GetKey(value) << std::endl;
-
-	//tests all values that need multiple squares
-	/*value = 2;
-	std::cout << "Value: " << value << " -> " << a.GetKey(value) << std::endl;
-
-	value = 3;
-	std::cout << "Value: " << value << " -> " << a.GetKey(value) << std::endl;
-
-	value = 4;
-	std::cout << "Value: " << value << " -> " << a.GetKey(value) << std::endl;
-
-	value = 5;
-	std::cout << "Value: " << value << " -> " << a.GetKey(value) << std::endl;
-
-	value = 6;
-	std::cout << "Value: " << value << " -> " << a.GetKey(value) << std::endl;
-
-	value = 7;
-	std::cout << "Value: " << value << " -> " << a.GetKey(value) << std::endl;
-
-	value = 8;
-	std::cout << "Value: " << value << " -> " << a.GetKey(value) << std::endl;
-
-	value = 9;
-	std::cout << "Value: " << value << " -> " << a.GetKey(value) << std::endl;*/
+	//tests values that are smaller than 3 digits
+	for (int i = 0; i < 100; i++) {
+		value = i;
+		std::cout << "Value: " << value << " -> " << a.GetKey(value) << std::endl;
+	}
 
 }
-
 
 int main()
 {
 
 	a = XORHash(3);
 
-	int test  = a.GetKey(152132344);
 
-	std::cout << test;
+	bool test = true;
+	if (test) {
 
+		TestExample();
+	}
+	else {
 
-	//bool test = true;
-	//if (test) {
+		int valuesToInput = 200;
+		keys.clear();
 
-	//	TestExample();
-	//}
-	//else {
+		//puts sequential values into the hash function
+		for (int i = 0; i < valuesToInput; i++)
+			keys.push_back(a.GetKey(i));
 
-	//	int valuesToInput = 200;
-	//	keys.clear();
+		//sorts all the returned keys
+		std::sort(keys.begin(), keys.end());
 
-	//	//puts sequential values into the hash function
-	//	for (int i = 0; i < valuesToInput; i++)
-	//		keys.push_back(a.GetKey(i));
+		int totalDistance = 0;
 
-	//	//sorts all the returned keys
-	//	std::sort(keys.begin(), keys.end());
+		//loops through all the keys and sums all the distances between keys
+		for (int i = 0; i < keys.size() - 2; i++)
+			totalDistance += keys[i + 1] - keys[i];
 
-	//	int totalDistance = 0;
+		//gets the average distance (-1 because the gaps between the keys is one less than count of keys)
+		float averageDistance = (float)totalDistance / keys.size() - 1;
 
-	//	//loops through all the keys and sums all the distances between keys
-	//	for (int i = 0; i < keys.size() - 2; i++)
-	//		totalDistance += keys[i + 1] - keys[i];
+		std::cout << "Total sequential values inputted: " << valuesToInput << std::endl;
+		std::cout << "Average distance between all keys: " << averageDistance << std::endl;
+		std::cout << "Best average distance is " << a.tableSize << " / " << valuesToInput << " = " << (float)a.tableSize / valuesToInput << std::endl;
+		std::cout << std::endl << std::endl << std::endl;
 
-	//	//gets the average distance (-1 because the gaps between the keys is one less than count of keys)
-	//	float averageDistance = (float)totalDistance / keys.size() - 1;
+		std::string input;
+		do {
+			int valuesToInput = 200;
+			keys.clear();
 
-	//	std::cout << "Total sequential values inputted: " << valuesToInput << std::endl;
-	//	std::cout << "Average distance between all keys: " << averageDistance << std::endl;
-	//	std::cout << "Best average distance is " << a.tableSize << " / " << valuesToInput << " = " << (float)a.tableSize / valuesToInput << std::endl;
-	//	std::cout << std::endl << std::endl << std::endl;
+			//puts random values into the hash function
+			for (int i = 0; i < valuesToInput; i++)
+				keys.push_back(a.GetKey(rand() % 1000));
 
-	//	std::string input;
-	//	do {
-	//		int valuesToInput = 200;
-	//		keys.clear();
+			//sorts all the returned keys
+			std::sort(keys.begin(), keys.end());
 
-	//		//puts random values into the hash function
-	//		for (int i = 0; i < valuesToInput; i++)
-	//			keys.push_back(a.GetKey(rand() % 1000));
+			int totalDistance = 0;
 
-	//		//sorts all the returned keys
-	//		std::sort(keys.begin(), keys.end());
+			//loops through all the keys and sums all the distances between keys
+			for (int i = 0; i < keys.size() - 2; i++)
+				totalDistance += keys[i + 1] - keys[i];
 
-	//		int totalDistance = 0;
+			//gets the average distance (-1 because the gaps between the keys is one less than count of keys)
+			float averageDistance = (float)totalDistance / keys.size() - 1;
 
-	//		//loops through all the keys and sums all the distances between keys
-	//		for (int i = 0; i < keys.size() - 2; i++)
-	//			totalDistance += keys[i + 1] - keys[i];
+			std::cout << "Total values inputted: " << valuesToInput << std::endl;
+			std::cout << "Average distance between all keys: " << averageDistance << std::endl;
+			std::cout << "Best average distance is " << a.tableSize << " / " << valuesToInput << " = " << (float)a.tableSize / valuesToInput << std::endl;
 
-	//		//gets the average distance (-1 because the gaps between the keys is one less than count of keys)
-	//		float averageDistance = (float)totalDistance / keys.size() - 1;
+			std::cin >> input;
 
-	//		std::cout << "Total values inputted: " << valuesToInput << std::endl;
-	//		std::cout << "Average distance between all keys: " << averageDistance << std::endl;
-	//		std::cout << "Best average distance is " << a.tableSize << " / " << valuesToInput << " = " << (float)a.tableSize / valuesToInput << std::endl;
-
-	//		std::cin >> input;
-
-	//	} while (input != "x");
-	//}
+		} while (input != "x");
+	}
 }
