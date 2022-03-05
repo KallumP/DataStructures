@@ -132,8 +132,6 @@ public:
 	//takes a value and returns it's hashed key
 	int GetKey(int value) {
 
-		int key;
-
 		//turns the value into a string (makes traversal easier)
 		std::string valueString = std::to_string(value);
 
@@ -141,8 +139,7 @@ public:
 		std::string buffer;
 
 		//loops through all the value digits
-		for (int i = 0; i < valueString.length(); i++)
-		{
+		for (int i = 0; i < valueString.length(); i++) {
 
 			//puts this digit into the buffer string
 			buffer += valueString[i];
@@ -203,8 +200,7 @@ public:
 		}
 
 		//gets the last value left in the list of divisions
-		key = std::stoi(valueStringDivided[0]);
-		return key;
+		return std::stoi(valueStringDivided[0]);
 	}
 };
 
@@ -278,9 +274,10 @@ void SequentialHashesAvalanche(Hash* hasher, int valueCount, int valueGap) {
 	std::vector<int> keys;
 
 	//puts sequential values into the hash function
-	for (int i = 0; i < valueCount; i += valueGap)
+	for (int i = 0; i < valueCount * valueGap; i += valueGap)
 		keys.push_back(hasher->GetKey(i));
 
+	std::cout << "Sequential value gap of " << valueGap << " used." << std::endl;
 	OutputAvalanchScore(hasher, keys);
 }
 
@@ -293,6 +290,7 @@ void RandomHashesAvalanche(Hash* hasher, int valueCount) {
 	for (int i = 0; i < valueCount; i++)
 		keys.push_back(hasher->GetKey(rand() % 1000));
 
+	std::cout << "Random numbers used" << std::endl;
 	OutputAvalanchScore(hasher, keys);
 }
 
@@ -306,7 +304,7 @@ void Demo(Hash* hasher) {
 	do {
 
 		RandomHashesAvalanche(hasher, 200);
-		std::cout << "Press enter to repeat or x to stop";
+		std::cout << "Press enter to repeat random values or 'x' to stop";
 		std::cin >> input;
 
 	} while (input != "x");
@@ -328,8 +326,8 @@ int main()
 
 	//tests the values used in the report
 	MidSquareTest(new MidSquare(3));
-	
-	std::cout << std::endl<< std::endl;
+
+	std::cout << std::endl << std::endl;
 
 	XORTest(new XOR(3));
 }
