@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{d93c4415-ddf8-4912-8c67-5500a57a2b55}</ProjectGuid>
-    <RootNamespace>MidSquare</RootNamespace>
+    <ProjectGuid>{fa60b93d-9cd4-4bad-a54f-c06e672e036e}</ProjectGuid>
+    <RootNamespace>HashingFunctions</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -139,7 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="MidSquare.cpp" />
+    <ClCompile Include="HashingFunctions.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
