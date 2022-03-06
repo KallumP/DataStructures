@@ -13,6 +13,23 @@ protected:
 	int digits;
 	int tableSize;
 	int* hashTable;
+
+	void SetupTableSize() {
+
+		//sets up how big to make the hashmap
+		tableSize = std::pow(10, digits);
+
+		//instantiates up the hashmap
+		hashTable = new int[tableSize];
+	}
+
+	void SetupTableSize(int _tableSize) {
+
+		tableSize = _tableSize;
+
+		//instantiates up the hashmap
+		hashTable = new int[tableSize];
+	}
 };
 
 
@@ -27,14 +44,10 @@ public:
 		//saves the number of digits to use
 		digits = 3;
 
-		//sets up how big to make the hashmap
-		tableSize = std::pow(10, digits) - 1;
+		SetupTableSize();
 
 		//sets up the number required to resqure the value
 		repeatSize = std::pow(10, digits - 1);
-
-		//instantiates up the hashmap
-		hashTable = new int[tableSize];
 	}
 
 	MidSquare(int _digits)
@@ -42,14 +55,10 @@ public:
 		//saves the number of digits to use
 		digits = _digits;
 
-		//sets up how big to make the hashmap
-		tableSize = std::pow(10, digits);
+		SetupTableSize();
 
 		//sets up the number required to resqure the value
 		repeatSize = std::pow(10, digits - 1);
-
-		//instantiates up the hashmap
-		hashTable = new int[tableSize];
 	}
 
 	//takes a value and returns it's hashed key
@@ -106,11 +115,7 @@ public:
 		//saves the number of digits to use
 		digits = 3;
 
-		//sets up how big to make the hashmap
-		tableSize = std::pow(10, digits) - 1;
-
-		//instantiates up the hashmap
-		hashTable = new int[tableSize];
+		SetupTableSize();
 	}
 
 	XOR(int _digits)
@@ -118,11 +123,7 @@ public:
 		//saves the number of digits to use
 		digits = _digits;
 
-		//sets up how big to make the hashmap
-		tableSize = std::pow(10, digits);
-
-		//instantiates up the hashmap
-		hashTable = new int[tableSize];
+		SetupTableSize();
 	}
 
 	//takes a value and returns it's hashed key
@@ -198,4 +199,65 @@ public:
 		//gets the last value left in the list of divisions
 		return std::stoi(valueStringDivided[0]);
 	}
+};
+
+class Division : public Hash {
+
+public:
+	//default table size is 1000
+	Division()
+	{
+
+		SetupTableSize(1000);
+		CalculateMValue();
+	}
+
+	Division(int tableSize)
+	{
+
+		SetupTableSize(tableSize);
+		CalculateMValue();
+	}
+
+	int GetAddress(int value) {
+
+		int remainder = value % M;
+
+		return remainder;
+	}
+
+private:
+	void CalculateMValue() {
+
+		//loops backwards from the table size
+		for (int i = GetTableSize() -1; i >= 0; i--) {
+
+			if (i % 2 != 0) {
+
+				bool prime = true;
+
+				//loops through 0 to half of the number being checked
+				for (int j = 2; j < std::ceil(i / 2.0); j++) {
+
+					int remainder = i % j;
+					//if the number is not divisible
+					if (remainder == 0) {
+						prime = false;
+						break;
+					}
+				}
+
+				if (prime) {
+
+					M = i;
+					return ;
+				}
+			}
+		}
+
+		//2 is a prime number that could be used if this wasn't available (we never check 2)
+		M = 2;
+	}
+
+	int M;
 };

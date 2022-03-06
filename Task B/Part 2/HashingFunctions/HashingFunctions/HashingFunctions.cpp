@@ -12,7 +12,9 @@ void OutputAddress(Hash* hasher, int value) {
 }
 
 
-void MidSquareTest(Hash* hasher) {
+void MidSquareTest() {
+
+	Hash* hasher = new MidSquare(3);
 
 	std::cout << "Test values used in report for the midsquare hash" << std::endl;
 	//example values from the report
@@ -31,10 +33,12 @@ void MidSquareTest(Hash* hasher) {
 	for (int i = 0; i < 10; i++)
 		OutputAddress(hasher, i);
 }
-void XORTest(Hash* hasher) {
+
+void XORTest() {
+
+	Hash* hasher = new XOR(3);
 
 	std::cout << "Test values used in report for the XOR hash" << std::endl;
-
 	//example values from the report
 	OutputAddress(hasher, 234561);
 	OutputAddress(hasher, 152132344);
@@ -44,6 +48,19 @@ void XORTest(Hash* hasher) {
 	//tests values that are smaller than 3 digits
 	for (int i = 0; i < 100; i++)
 		OutputAddress(hasher, i);
+}
+
+void DivisionTest() {
+
+	Hash* hasher = new Division(1000);
+
+	std::cout << "Test values used in report for the division hash" << std::endl;
+	//example values from the report
+	OutputAddress(hasher, 43);
+	OutputAddress(hasher, 897);
+	OutputAddress(hasher, 27363);
+	OutputAddress(hasher, 7894320);
+
 }
 
 //Outputs the avalanche score using the list of given keys (average distance between all keys compared to the best possible distances)
@@ -117,19 +134,27 @@ void Demo(Hash* hasher) {
 int main()
 {
 
-	std::cout << "Testing: midsquare" << std::endl;
-	Demo(new MidSquare(3));
-	system("cls");
+	//std::cout << "Testing: midsquare" << std::endl;
+	//Demo(new MidSquare(3));
+	//system("cls");
+
+	//std::cout << "Testing: xor" << std::endl;
+	//Demo(new XOR(3));
+	//system("cls");
 
 	std::cout << "Testing: xor" << std::endl;
-	Demo(new XOR(3));
+	Demo(new Division(1000));
 	system("cls");
 
+	////tests the values used in the report
+	//MidSquareTest();
+	//std::cout << std::endl << std::endl;
 
-	//tests the values used in the report
-	MidSquareTest(new MidSquare(3));
+	//XORTest();
+	//std::cout << std::endl << std::endl;
 
-	std::cout << std::endl << std::endl;
 
-	XORTest(new XOR(3));
+	DivisionTest();
+
+
 }
