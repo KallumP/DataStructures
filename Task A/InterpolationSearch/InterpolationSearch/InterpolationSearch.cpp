@@ -11,7 +11,7 @@ int* base;
 int FillListRandom(int amount, int gapMin, int gapMax) {
 
 	base = new int[amount];
-	
+
 	int numberToAdd = 0;
 
 	//adds in the wanted amount of values
@@ -28,21 +28,16 @@ int FillListRandom(int amount, int gapMin, int gapMax) {
 }
 
 //fills the list with a given amount of sequential numbers
-void FillList(int amount, int step) {
+int FillList(int amount, int step) {
 
 	base = new int[amount];
 	for (int i = 0; i < amount; i++)
 		base[i] = i * step;
+
+	return amount * step;
 }
 
-//outputs the full list
-void OutputList(std::vector<int> toOutput) {
-
-	for (int i = 0; i < toOutput.size(); i++)
-		std::cout << "Index: " << i << " Value: " << toOutput[i] << std::endl;
-}
-
-//outputs a slice of the vector
+//outputs a slice of the array
 void OutputList(int bottom, int top) {
 
 	for (int i = bottom; i <= top; i++)
@@ -71,12 +66,12 @@ int InterpolateIndex(int key, int bottom, int top) {
 //interpolation search. Return the found index, or -1 if not found
 int InterpolateSearch(int key, int comparisonCount, int bottom, int top) {
 
-	//outputs the array
-	OutputList(bottom, top);
-	std::cout << "^^ Array to search ^^ " << std::endl;
+	//outputs the array section being worked with
+	//OutputList(bottom, top);
+	//std::cout << "^^ Array to search ^^ " << std::endl;
 
 	//outputs the array size
-	std::cout << "Array size left to check: " <<  1 + top - bottom << std::endl;
+	std::cout << "Array size left to check: " << 1 + top - bottom << std::endl;
 
 	std::cout << "Start: " << bottom << ", End: " << top << std::endl;
 
@@ -109,7 +104,7 @@ int InterpolateSearch(int key, int comparisonCount, int bottom, int top) {
 	std::cout << std::endl;
 	std::cout << std::endl;
 
-
+	//the recursive calls have constrains to stop the ends from overlapping
 	if (valueAtEstimate == key)
 		return estimatedPosition;
 	else if (key < valueAtEstimate)
@@ -127,19 +122,38 @@ int main() {
 
 	do {
 
-		int arrayCount = 10;
+		int arrayCount = 10000000;
 		int gapMin = 10;
-		int gapMax= 0;
+		int gapMax = 0;
 
+		//fills with random values with a given random gap
 		int maxVal = FillListRandom(arrayCount, gapMin, gapMax);
 
-		if (InterpolateSearch(rand() % maxVal, 0, 0, arrayCount - 1))
-			std::cout << "Found" << std::endl;
-		else
+		//fills with sequential data with a constant gap
+		//int maxVal = FillList(arrayCount, 4);
+
+		//gets a random key
+		//int key = rand() % maxVal;
+
+		//gets a key that exists
+		int key = base[rand() % arrayCount];
+
+		//calls the interpolation search
+		int returnedIndex = InterpolateSearch(key, 0, 0, arrayCount - 1);
+
+		//outputs the result
+		if (returnedIndex != -1) {
+
+			std::cout << "Found at: " << returnedIndex << std::endl;
+			std::cout << "Key: " << key << std::endl;
+			std::cout << "Value at " << returnedIndex << ": " << base[returnedIndex] << std::endl;
+
+		} else
 			std::cout << "Not found" << std::endl;
 
 		std::cin >> input;
 		system("cls");
 
+		//repeats until x is pressed
 	} while (input != "x");
 }
