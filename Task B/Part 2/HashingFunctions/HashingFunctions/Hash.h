@@ -3,9 +3,9 @@
 class Hash {
 
 public:
-	virtual int GetAddress(int value) = 0;
+	virtual int GetAddress(int key) = 0;
 
-	virtual void Insert(int value) { hashTable[GetAddress(value)]++; }
+	virtual void Insert(int key) { hashTable[GetAddress(key)]++; }
 
 	int GetTableSize() { return tableSize; }
 
@@ -46,7 +46,7 @@ public:
 
 		SetupTableSize();
 
-		//sets up the number required to resqure the value
+		//sets up the number required to resqure the key
 		repeatSize = std::pow(10, digits - 1);
 	}
 
@@ -57,46 +57,46 @@ public:
 
 		SetupTableSize();
 
-		//sets up the number required to resqure the value
+		//sets up the number required to resqure the key
 		repeatSize = std::pow(10, digits - 1);
 	}
 
-	//takes a value and returns it's hashed key
-	int GetAddress(int value) {
+	//takes a key and returns it's hashed key
+	int GetAddress(int key) {
 
 		//0 and 1 don't work for this
-		if (value == 0 || value == 1)
-			return value;
+		if (key == 0 || key == 1)
+			return key;
 
-		int key;
-		int valueSquared;
-		std::string valueSquaredString;
+		int address;
+		int keySquared;
+		std::string keySquaredString;
 
-		//squares the input value
-		valueSquared = value * value;
+		//squares the input key
+		keySquared = key * key;
 
 		//checks if the result had enough digits
-		if (valueSquared < repeatSize)
+		while (keySquared < repeatSize)
 
-			//repeats the algorithm recursively
-			valueSquared = GetAddress(valueSquared);
+			//resquares the key
+			keySquared = keySquared * keySquared;
 
 		//turns the result into a string (for easy traversal)
-		valueSquaredString = std::to_string(valueSquared);
+		keySquaredString = std::to_string(keySquared);
 
 		//find the middle position
-		int middle = std::ceil(valueSquaredString.length() / 2.0) - 1;
+		int middle = std::ceil(keySquaredString.length() / 2.0) - 1;
 
 		//calculates how many digits to back from the middle
 		int halfDigits = std::floor(digits / 2);
 
-		//gets the middle values
-		std::string keyString = valueSquaredString.substr(middle - halfDigits, digits);
+		//gets the middle digits
+		std::string keyString = keySquaredString.substr(middle - halfDigits, digits);
 
-		//turns the middle value string into an integer
-		key = std::stoi(keyString);
+		//turns the middle digits string into an integer
+		address = std::stoi(keyString);
 
-		return key;
+		return address;
 	}
 
 private:
@@ -126,26 +126,26 @@ public:
 		SetupTableSize();
 	}
 
-	//takes a value and returns it's hashed key
-	int GetAddress(int value) {
+	//takes a key and returns it's hashed key
+	int GetAddress(int key) {
 
-		//turns the value into a string (makes traversal easier)
-		std::string valueString = std::to_string(value);
+		//turns the key into a string (makes traversal easier)
+		std::string keyString = std::to_string(key);
 
-		std::vector<std::string> valueStringDivided;
+		std::vector<std::string> keyStringDivided;
 		std::string buffer;
 
-		//loops through all the value digits
-		for (int i = 0; i < valueString.length(); i++) {
+		//loops through all the key digits
+		for (int i = 0; i < keyString.length(); i++) {
 
 			//puts this digit into the buffer string
-			buffer += valueString[i];
+			buffer += keyString[i];
 
 			//checks if this digit is the last required one for this division 
 			if (i % digits == digits - 1) {
 
 				//adds the buffer into the list of divded strings
-				valueStringDivided.push_back(buffer);
+				keyStringDivided.push_back(buffer);
 
 				//resets the buffer
 				buffer = "";
@@ -160,7 +160,7 @@ public:
 				buffer += "0";
 
 			//adds the buffer into the list of divded strings
-			valueStringDivided.push_back(buffer);
+			keyStringDivided.push_back(buffer);
 
 			//resets the buffer
 			buffer = "";
@@ -169,14 +169,14 @@ public:
 		std::string foldBuffer = "";
 
 		//while there are still two divisions left
-		while (valueStringDivided.size() > 1) {
+		while (keyStringDivided.size() > 1) {
 
 			//loop through all numbers in the division
 			for (int i = 0; i < digits; i++) {
 
 				//XORs the current digits
-				int a = valueStringDivided[0][i];
-				int b = valueStringDivided[1][i];
+				int a = keyStringDivided[0][i];
+				int b = keyStringDivided[1][i];
 				int c = a ^ b;
 
 				//checks if the result was two digits
@@ -187,17 +187,17 @@ public:
 				foldBuffer += std::to_string(c);
 			}
 
-			//removes the first value
-			valueStringDivided.erase(valueStringDivided.begin());
+			//removes the first key
+			keyStringDivided.erase(keyStringDivided.begin());
 
-			//assigns the new first value to the result (ready to be folded onto the next division
-			valueStringDivided[0] = foldBuffer;
+			//assigns the new first key to the result (ready to be folded onto the next division
+			keyStringDivided[0] = foldBuffer;
 
 			foldBuffer = "";
 		}
 
-		//gets the last value left in the list of divisions
-		return std::stoi(valueStringDivided[0]);
+		//gets the last key left in the list of divisions
+		return std::stoi(keyStringDivided[0]);
 	}
 };
 
@@ -219,9 +219,9 @@ public:
 		CalculateMValue();
 	}
 
-	int GetAddress(int value) {
+	int GetAddress(int key) {
 
-		int remainder = value % M;
+		int remainder = key % M;
 
 		return remainder;
 	}
