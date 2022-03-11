@@ -61,7 +61,7 @@ public:
 		repeatSize = std::pow(10, digits - 1);
 	}
 
-	//takes a key and returns it's hashed key
+	//takes a key and returns it's hashed address
 	int GetAddress(int key) {
 
 		//0 and 1 don't work for this
