@@ -158,6 +158,8 @@ void RandomHashesAvalanche(Hash* hasher, int keyCount) {
 
 	std::vector<int> addresses;
 
+	srand(time(0));
+
 	//puts random keys into the hash function
 	for (int i = 0; i < keyCount; i++)
 		addresses.push_back(hasher->GetAddress(rand() % 1000));
@@ -176,9 +178,9 @@ void Demo(Hash* hasher) {
 	do {
 
 		RandomHashesAvalanche(hasher, 10000);
-		std::cout << "Press enter to repeat random keys or 'x' to stop";
+		std::cout << "Press enter to repeat random keys or 'x' to stop" << std::endl;
 		std::cin >> input;
-
+		system("cls");
 	} while (input != "x");
 
 	delete hasher;

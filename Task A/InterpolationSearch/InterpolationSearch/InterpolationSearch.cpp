@@ -14,6 +14,8 @@ int FillListRandom(int amount, int gapMin, int gapMax) {
 
 	int numberToAdd = 0;
 
+	srand(time(0));
+
 	//adds in the wanted amount of values
 	for (int i = 0; i < amount; i++) {
 
@@ -64,11 +66,14 @@ int InterpolateIndex(int key, int bottom, int top) {
 }
 
 //interpolation search. Return the found index, or -1 if not found
-int InterpolateSearch(int key, int comparisonCount, int bottom, int top) {
+int InterpolateSearch(int key, int comparisonCount, int bottom, int top, bool showArray) {
 
-	//outputs the array section being worked with
-	//OutputList(bottom, top);
-	//std::cout << "^^ Array to search ^^ " << std::endl;
+	if (showArray) {
+
+		//outputs the array section being worked with
+		OutputList(bottom, top);
+		std::cout << "^^ Array to search ^^ " << std::endl;
+	}
 
 	//outputs the array size
 	std::cout << "Array size left to check: " << 1 + top - bottom << std::endl;
@@ -108,9 +113,9 @@ int InterpolateSearch(int key, int comparisonCount, int bottom, int top) {
 	if (valueAtEstimate == key)
 		return estimatedPosition;
 	else if (key < valueAtEstimate)
-		return InterpolateSearch(key, comparisonCount, bottom, Constrain(estimatedPosition - 1, bottom, top));
+		return InterpolateSearch(key, comparisonCount, bottom, Constrain(estimatedPosition - 1, bottom, top), showArray);
 	else if (key > valueAtEstimate)
-		return InterpolateSearch(key, comparisonCount, Constrain(estimatedPosition + 1, bottom, top), top);
+		return InterpolateSearch(key, comparisonCount, Constrain(estimatedPosition + 1, bottom, top), top, showArray);
 }
 
 
@@ -126,11 +131,17 @@ int main() {
 		int gapMin = 10;
 		int gapMax = 0;
 
+
+		std::cout << "Filling array with random numbers" << std::endl;
+
 		//fills with random values with a given random gap
 		int maxVal = FillListRandom(arrayCount, gapMin, gapMax);
 
 		//fills with sequential data with a constant gap
 		//int maxVal = FillList(arrayCount, 4);
+
+		std::cout << "Array filled" << std::endl;
+
 
 		//gets a random key
 		//int key = rand() % maxVal;
@@ -138,8 +149,11 @@ int main() {
 		//gets a key that exists
 		int key = base[rand() % arrayCount];
 
+		std::cout << std::endl;
+
+
 		//calls the interpolation search
-		int returnedIndex = InterpolateSearch(key, 0, 0, arrayCount - 1);
+		int returnedIndex = InterpolateSearch(key, 0, 0, arrayCount - 1, false);
 
 		//outputs the result
 		if (returnedIndex != -1) {
@@ -150,6 +164,7 @@ int main() {
 
 		} else
 			std::cout << "Not found" << std::endl;
+
 
 		std::cin >> input;
 		system("cls");
