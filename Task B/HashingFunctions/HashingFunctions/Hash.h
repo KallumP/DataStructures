@@ -5,36 +5,69 @@ class Hash {
 public:
 	virtual int GetAddress(int key) = 0;
 
-	virtual void Insert(int key) { hashTable[GetAddress(key)]++; }
+	//increments the value in the array where the key would be inserted
+	void Insert(int key) {
+		hashTable[GetAddress(key)]++;
+	}
 
-	int GetTableSize() { return tableSize; }
+	//returns how many collisions were found in the array
+	int GetCollisions() {
+
+		int collisions = 0;
+
+		//loops through all addresses in the array
+		for (int i = 0; i < GetTableSize(); i++)
+
+			//if there was more than one insertion in this address
+			if (hashTable[i] > 1)
+
+				//adds on the extra collisions
+				collisions += hashTable[i] - 1;
+
+		return collisions;
+	}
+
+	//resets the array with 0s
+	void ResetTable() {
+		
+		delete hashTable;
+		hashTable = new int[tableSize];
+
+		for (int i = 0; i < GetTableSize(); i++)
+			hashTable[i] = 0;
+	}
+
+	int GetTableSize() {
+		return tableSize;
+	}
+
+
+
+
 
 protected:
 	int digits;
 	int tableSize;
 	int* hashTable;
 
-	void SetupTableSize() {
+	void SetupTable() {
 
 		//sets up how big to make the hashmap
 		tableSize = std::pow(10, digits);
 
-		//instantiates up the hashmap
-		hashTable = new int[tableSize];
+		ResetTable();
 	}
 
-	void SetupTableSize(int _tableSize) {
+	void SetupTable(int _tableSize) {
 
 		tableSize = _tableSize;
 
-		//instantiates up the hashmap
-		hashTable = new int[tableSize];
+		ResetTable();
 	}
 };
 
 
 class MidSquare : public Hash {
-
 
 public:
 
@@ -44,7 +77,7 @@ public:
 		//saves the number of digits to use
 		digits = 3;
 
-		SetupTableSize();
+		SetupTable();
 
 		//sets up the number required to resqure the key
 		repeatSize = std::pow(10, digits - 1);
@@ -55,7 +88,7 @@ public:
 		//saves the number of digits to use
 		digits = _digits;
 
-		SetupTableSize();
+		SetupTable();
 
 		//sets up the number required to resqure the key
 		repeatSize = std::pow(10, digits - 1);
@@ -106,7 +139,6 @@ private:
 
 class XOR : public Hash {
 
-
 public:
 
 	//defaults to 3 digits
@@ -115,7 +147,7 @@ public:
 		//saves the number of digits to use
 		digits = 3;
 
-		SetupTableSize();
+		SetupTable();
 	}
 
 	XOR(int _digits)
@@ -123,7 +155,7 @@ public:
 		//saves the number of digits to use
 		digits = _digits;
 
-		SetupTableSize();
+		SetupTable();
 	}
 
 	//takes a key and returns it's hashed key
@@ -208,14 +240,14 @@ public:
 	Division()
 	{
 
-		SetupTableSize(1000);
+		SetupTable(1000);
 		CalculateMValue();
 	}
 
 	Division(int tableSize)
 	{
 
-		SetupTableSize(tableSize);
+		SetupTable(tableSize);
 		CalculateMValue();
 	}
 
@@ -230,7 +262,7 @@ private:
 	void CalculateMValue() {
 
 		//loops backwards from the table size
-		for (int i = GetTableSize() -1; i >= 0; i--) {
+		for (int i = GetTableSize() - 1; i >= 0; i--) {
 
 			if (i % 2 != 0) {
 
@@ -250,7 +282,7 @@ private:
 				if (prime) {
 
 					M = i;
-					return ;
+					return;
 				}
 			}
 		}

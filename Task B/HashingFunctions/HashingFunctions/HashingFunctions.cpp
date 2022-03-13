@@ -6,11 +6,12 @@
 
 #include "Hash.h"
 
+
+
 //Outputs to the console the key for a given key using a given hasher
 void OutputAddress(Hash* hasher, int key) {
 	std::cout << "Key: " << key << " -> " << hasher->GetAddress(key) << std::endl;
 }
-
 
 void MidSquareTest() {
 
@@ -58,6 +59,26 @@ void DivisionTest() {
 	OutputAddress(hasher, 7894320);
 
 }
+
+//tests values used in the report
+void DemoPart1() {
+
+	MidSquareTest();
+	std::cout << std::endl << std::endl;
+
+	XORTest();
+	std::cout << std::endl << std::endl;
+
+	DivisionTest();
+
+	std::string input = "";
+	std::cout << "Enter any value to continue" << std::endl;
+	std::cin >> input;
+	system("cls");
+}
+
+
+
 
 //sums the binary value (all 1s) of a given decimal value
 int SumBinary(int value) {
@@ -168,8 +189,8 @@ void RandomHashesAvalanche(Hash* hasher, int keyCount) {
 	OutputAvalancheScore(hasher, addresses);
 }
 
-//Demos part 1 and 2
-void Demo(Hash* hasher) {
+//tests the avalanche property of the given hasher
+void AvalanchePropertyTests(Hash* hasher) {
 
 	for (int i = 1; i <= 5; i++)
 		SequentialHashesAvalanche(hasher, 200, i);
@@ -178,34 +199,146 @@ void Demo(Hash* hasher) {
 	do {
 
 		RandomHashesAvalanche(hasher, 10000);
-		std::cout << "Press enter to repeat random keys or 'x' to stop" << std::endl;
+
+		//repeat
+		std::cout << "Enter any value to repeat random keys or 'x' to stop" << std::endl;
 		std::cin >> input;
 		system("cls");
 	} while (input != "x");
+}
+
+//demos part 2
+void DemoPart2() {
+
+	Hash* hasher;
+
+	hasher = new MidSquare(3);
+	std::cout << "Testing: midsquare avalanche" << std::endl << std::endl;
+	AvalanchePropertyTests(hasher);
+	system("cls");
+
+	hasher = new XOR(3);
+	std::cout << "Testing: xor avalanche" << std::endl << std::endl;
+	AvalanchePropertyTests(hasher);
+	system("cls");
+
+	hasher = new Division(1000);
+	std::cout << "Testing: division avalanche" << std::endl << std::endl;
+	AvalanchePropertyTests(hasher);
+	system("cls");
 
 	delete hasher;
 }
 
+
+
+
+//tests the collisoin property of the given hash
+void CollisisionTest(Hash* hasher, int keyCount) {
+
+	//does 5 sequential inserts
+	for (int i = 1; i <= 5; i++) {
+
+		//resets the table for this set of keys
+		hasher->ResetTable();
+
+		//inserts a keyCount anount of values with a gap of i
+		for (int j = 0; j < keyCount * i; j += i) {
+
+			if (j == 46350)
+				std::cout << "Inserting key: " << j << " into hashtable" << std::endl;
+			//insets this key
+			hasher->Insert(j);
+		}
+
+		//outputs the number of collisions for this set
+		int collisions = hasher->GetCollisions();
+		std::cout << "Number of collisions found in " << keyCount << " sequential keys with a gap of " << i << " is: " << collisions << std::endl;
+	}
+
+	std::string input = "";
+
+	do {
+
+		//resets the table for this set of keys
+		hasher->ResetTable();
+
+		srand(time(0));
+
+		//puts random keys into the hash function
+		for (int i = 0; i < keyCount; i++)
+
+			//inserts this random key
+			hasher->Insert(rand() % 1000);
+
+		//outputs the number of collisions for this set
+		int collisions = hasher->GetCollisions();
+		std::cout << "Number of collisions found in " << keyCount << " random keys is: " << collisions << std::endl;
+
+		//repeat
+		std::cout << "Enter any value to repeat random keys or 'x' to stop" << std::endl;
+		std::cin >> input;
+		system("cls");
+	} while (input != "x");
+
+}
+
+//demos part 3 for a specific hash
+void DemoPart3(Hash* hasher) {
+
+	//tests inputting half the table size capacity of keys
+	std::cout << "Testing: midsquare collisions on table size: " << hasher->GetTableSize() << " and half table size key count" << std::endl << std::endl;
+	CollisisionTest(hasher, hasher->GetTableSize() / 2);
+	system("cls");
+
+	//tests inputting 10 times the table size keys
+	std::cout << "Testing: midsquare collisions on table size: " << hasher->GetTableSize() << " and x5 table size key count" << std::endl << std::endl;
+	CollisisionTest(hasher, hasher->GetTableSize() * 5);
+	system("cls");
+}
+
+//Demos part 3
+void DemoPart3() {
+
+	Hash* hasher;
+
+	//loops through 4 table digit sizes to test
+	for (int i = 3; i < 7; i++) {
+
+		hasher = new MidSquare(i);
+
+		DemoPart3(hasher);
+
+	}
+
+	//loops through 4 digits of sizes to test
+	for (int i = 3; i < 7; i++) {
+
+		hasher = new XOR(i);
+
+		DemoPart3(hasher);
+
+	}
+
+	//loops through power of 10 sizes
+	for (int i = 3; i < 7; i++) {
+
+		hasher = new Division(std::pow(10, i));
+
+		DemoPart3(hasher);
+	}
+
+	delete hasher;
+}
+
+
+
+
 int main()
 {
+	//DemoPart1();
 
-	std::cout << "Testing: midsquare" << std::endl << std::endl;
-	Demo(new MidSquare(3));
-	system("cls");
+	//DemoPart2();
 
-	std::cout << "Testing: xor" << std::endl << std::endl;
-	Demo(new XOR(3));
-	system("cls");
-
-	std::cout << "Testing: division" << std::endl << std::endl;
-	Demo(new Division(1000));
-	system("cls");
-
-	MidSquareTest();
-	std::cout << std::endl << std::endl;
-
-	XORTest();
-	std::cout << std::endl << std::endl;
-
-	DivisionTest();
+	DemoPart3();
 }
