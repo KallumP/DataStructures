@@ -183,7 +183,7 @@ void RandomHashesAvalanche(Hash* hasher, int keyCount) {
 
 	//puts random keys into the hash function
 	for (int i = 0; i < keyCount; i++)
-		addresses.push_back(hasher->GetAddress(rand() % 1000));
+		addresses.push_back(hasher->GetAddress(rand() % (hasher->GetTableSize() * 10)));
 
 	std::cout << "Random numbers used" << std::endl;
 	OutputAvalancheScore(hasher, addresses);
@@ -198,7 +198,7 @@ void AvalanchePropertyTests(Hash* hasher) {
 	std::string input = "";
 	do {
 
-		RandomHashesAvalanche(hasher, 10000);
+		RandomHashesAvalanche(hasher, 100000);
 
 		//repeat
 		std::cout << "Enter any value to repeat random keys or 'x' to stop" << std::endl;
@@ -245,83 +245,98 @@ void CollisisionTest(Hash* hasher, int keyCount) {
 		//inserts a keyCount anount of values with a gap of i
 		for (int j = 0; j < keyCount * i; j += i) {
 
-			if (j == 46350)
-				std::cout << "Inserting key: " << j << " into hashtable" << std::endl;
+			//std::cout << "Inserting key: " << j << " into hashtable" << std::endl;
+
 			//insets this key
 			hasher->Insert(j);
 		}
 
 		//outputs the number of collisions for this set
 		int collisions = hasher->GetCollisions();
-		std::cout << "Number of collisions found in " << keyCount << " sequential keys with a gap of " << i << " is: " << collisions << std::endl;
+		std::cout << keyCount << " sequential keys inputted with a gap of " << i;
+		std::cout << ". Number of collisions found: " << collisions;
+		std::cout << ". Collision rate = " << 100 * ((double)collisions / keyCount) << "%" << std::endl;
 	}
 
-	std::string input = "";
 
-	do {
 
-		//resets the table for this set of keys
-		hasher->ResetTable();
+	//resets the table for this set of keys
+	hasher->ResetTable();
 
-		srand(time(0));
+	srand(time(0));
 
-		//puts random keys into the hash function
-		for (int i = 0; i < keyCount; i++)
+	//puts random keys into the hash function
+	for (int i = 0; i < keyCount; i++)
 
-			//inserts this random key
-			hasher->Insert(rand() % 1000);
+		//inserts this random key
+		hasher->Insert(rand() % (hasher->GetTableSize() * 10));
 
-		//outputs the number of collisions for this set
-		int collisions = hasher->GetCollisions();
-		std::cout << "Number of collisions found in " << keyCount << " random keys is: " << collisions << std::endl;
-
-		//repeat
-		std::cout << "Enter any value to repeat random keys or 'x' to stop" << std::endl;
-		std::cin >> input;
-		system("cls");
-	} while (input != "x");
+	//outputs the number of collisions for this set
+	int collisions = hasher->GetCollisions();
+	std::cout << keyCount << " random keys inputted";
+	std::cout << ". Number of collisions found: " << collisions;
+	std::cout << ". Collision rate = " << 100 * ((double)collisions / keyCount) << "%" << std::endl << std::endl;
 
 }
 
 //demos part 3 for a specific hash
 void DemoPart3(Hash* hasher) {
 
-	//tests inputting half the table size capacity of keys
-	std::cout << "Testing: midsquare collisions on table size: " << hasher->GetTableSize() << " and half table size key count" << std::endl << std::endl;
-	CollisisionTest(hasher, hasher->GetTableSize() / 2);
-	system("cls");
+	float tablePortion;
 
-	//tests inputting 10 times the table size keys
-	std::cout << "Testing: midsquare collisions on table size: " << hasher->GetTableSize() << " and x5 table size key count" << std::endl << std::endl;
-	CollisisionTest(hasher, hasher->GetTableSize() * 5);
-	system("cls");
+	tablePortion = 0.1;
+	//tests inputting half the table size capacity of keys
+	std::cout << "Testing: " << hasher->GetHashType() << " collisions on table size : " << hasher->GetTableSize() << " and " << tablePortion << " table size key count" << std::endl;
+	CollisisionTest(hasher, hasher->GetTableSize() * tablePortion);
+
+
+	tablePortion = 0.5;
+	//tests inputting half the table size capacity of keys
+	std::cout << "Testing: " << hasher->GetHashType() << " collisions on table size : " << hasher->GetTableSize() << " and " << tablePortion << " table size key count" << std::endl;
+	CollisisionTest(hasher, hasher->GetTableSize() * tablePortion);
+
+	tablePortion = 1.0;
+	//tests inputting half the table size capacity of keys
+	std::cout << "Testing: " << hasher->GetHashType() << " collisions on table size : " << hasher->GetTableSize() << " and " << tablePortion << " table size key count" << std::endl;
+	CollisisionTest(hasher, hasher->GetTableSize() * tablePortion);
 }
 
 //Demos part 3
 void DemoPart3() {
 
 	Hash* hasher;
+	std::string input = "";
+
 
 	//loops through 4 table digit sizes to test
-	for (int i = 3; i < 7; i++) {
+	for (int i = 3; i < 6; i++) {
 
 		hasher = new MidSquare(i);
 
 		DemoPart3(hasher);
-
 	}
 
+
+	//pause
+	std::cout << "Enter any value to continue" << std::endl;
+	std::cin >> input;
+	system("cls");
+
 	//loops through 4 digits of sizes to test
-	for (int i = 3; i < 7; i++) {
+	for (int i = 3; i < 6; i++) {
 
 		hasher = new XOR(i);
 
 		DemoPart3(hasher);
-
 	}
 
+	//pause
+	std::cout << "Enter any value to continue" << std::endl;
+	std::cin >> input;
+	system("cls");
+
 	//loops through power of 10 sizes
-	for (int i = 3; i < 7; i++) {
+	for (int i = 3; i < 6; i++) {
 
 		hasher = new Division(std::pow(10, i));
 

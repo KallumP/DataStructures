@@ -29,18 +29,20 @@ public:
 
 	//resets the array with 0s
 	void ResetTable() {
-		
+
 		delete hashTable;
 		hashTable = new int[tableSize];
 
-		for (int i = 0; i < GetTableSize(); i++)
-			hashTable[i] = 0;
+		std::fill(hashTable, hashTable + tableSize, 0);
 	}
 
 	int GetTableSize() {
 		return tableSize;
 	}
 
+	std::string GetHashType() {
+		return hashType;
+	}
 
 
 
@@ -49,6 +51,7 @@ protected:
 	int digits;
 	int tableSize;
 	int* hashTable;
+	std::string hashType;
 
 	void SetupTable() {
 
@@ -72,8 +75,10 @@ class MidSquare : public Hash {
 public:
 
 	//defaults to 3 digits
-	MidSquare()
-	{
+	MidSquare() {
+
+		hashType = "midsquare";
+
 		//saves the number of digits to use
 		digits = 3;
 
@@ -83,8 +88,10 @@ public:
 		repeatSize = std::pow(10, digits - 1);
 	}
 
-	MidSquare(int _digits)
-	{
+	MidSquare(int _digits) {
+
+		hashType = "midsquare";
+
 		//saves the number of digits to use
 		digits = _digits;
 
@@ -96,6 +103,10 @@ public:
 
 	//takes a key and returns it's hashed address
 	int GetAddress(int key) {
+
+		//keeps halving the key if the square cannot be stored in an int
+		while (key >= 46340)
+			key /= 2;
 
 		//0 and 1 don't work for this
 		if (key == 0 || key == 1)
@@ -123,6 +134,9 @@ public:
 		//calculates how many digits to back from the middle
 		int halfDigits = std::floor(digits / 2);
 
+		if (digits % 2 == 0)
+			halfDigits--;
+
 		//gets the middle digits
 		std::string keyString = keySquaredString.substr(middle - halfDigits, digits);
 
@@ -144,16 +158,22 @@ public:
 	//defaults to 3 digits
 	XOR()
 	{
+		hashType = "XOR";
+
 		//saves the number of digits to use
 		digits = 3;
+
 
 		SetupTable();
 	}
 
 	XOR(int _digits)
 	{
+		hashType = "XOR";
+
 		//saves the number of digits to use
 		digits = _digits;
+
 
 		SetupTable();
 	}
@@ -239,6 +259,7 @@ public:
 	//default table size is 1000
 	Division()
 	{
+		hashType = "division";
 
 		SetupTable(1000);
 		CalculateMValue();
@@ -246,6 +267,8 @@ public:
 
 	Division(int tableSize)
 	{
+		hashType = "division";
+
 
 		SetupTable(tableSize);
 		CalculateMValue();
