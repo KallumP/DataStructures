@@ -8,7 +8,7 @@
 int* base;
 int comparisonCount;
 
-//fills the array with a given amount of random numbers (sorted) between min and max
+//fills the array with a given amount of random numbers (sorted) between min and max (
 int FillListRandom(int amount, int gapMin, int gapMax) {
 
 	base = new int[amount];
@@ -141,26 +141,46 @@ int LinearSearch(int key, int bottom, int top) {
 	return -1;
 }
 
-//Returns the middle value if the key was found there, if not recur with the half it could be in. Returns -1 if not found
+//same as linear search but starting from the top of the array
+int LinearSearchBackward(int key, int bottom, int top) {
+
+	//loops backwards through each value
+	for (int i = top; i >= bottom; i--) {
+
+		comparisonCount++;
+
+		//checks if this was the value
+		if (base[i] == key)
+
+			return  i;
+	}
+
+	return -1;
+}
+
+//recursivley splits the array in half until one value is left. Return the position if the key was found there or -1 if not
 int BinarySearch(int key, int bottom, int top) {
+
+	//if there is only one more value left to check
+	if (top == bottom) {
+
+		comparisonCount++;
+		//if the key was found in the last position
+		if (base[bottom] == key)
+			return bottom;
+		else
+			return -1;
+	}
 
 	//finds the middle
 	int middle = std::floor(bottom + (top - bottom) / 2);
 
 	comparisonCount++;
-	//if the key was found in the middle
-	if (base[middle] == key)
-		return middle;
-
-	//if there was no more values left to check
-	if (top == bottom)
-		return -1;
-
 	//recalls the search
-	if (key < base[middle])
-		BinarySearch(key, bottom, Constrain(middle - 1, bottom, middle));
+	if (key <= base[middle])
+		BinarySearch(key, bottom, std::max(middle, bottom));
 	else if (key > base[middle])
-		BinarySearch(key, Constrain(middle + 1, middle, top), top);
+		BinarySearch(key, std::min(middle + 1, top), top);
 }
 
 //finds the search space and then calls binary search on it
@@ -172,6 +192,7 @@ int ExponentialSearch(int key, int bottom, int top) {
 		return bottom;
 
 	int i = bottom + 1;
+	comparisonCount++;
 	//keeps looping while there is still array space to check and the current index is smaller than the key
 	while (i < top && base[i] <= key) {
 
@@ -182,7 +203,30 @@ int ExponentialSearch(int key, int bottom, int top) {
 	}
 
 	//calls binary search on the found search space
-	return BinarySearch(key, i / 2, std::min(i, top));
+	return BinarySearch(key, std::max(bottom + 1, i / 2), std::min(i, top));
+}
+
+//exponential search starting from top to bottom
+int ExponentialSearchBackward(int key, int bottom, int top) {
+
+	comparisonCount++;
+	//check if key was present at the first address
+	if (base[top] == key)
+		return top;
+
+	int i = 1;
+	comparisonCount++;
+	//keeps looping while there is still array space to check and the current index is bigger than the key
+	while (top - i > bottom && base[top - i] >= key) {
+
+		comparisonCount++;
+
+		//doubles the seach space
+		i = i * 2;
+	}
+
+	//calls binary search on the found search space
+	return BinarySearch(key, std::max(top - i, bottom), std::min(top - i / 2, top - 1));
 }
 
 //interplation and linear hybrid search
@@ -192,16 +236,14 @@ int InterpolationLinearSearch(int key, int bottom, int top) {
 	int estimatedPosition = InterpolateIndex(key, bottom, top);
 	int valueAtEstimate = base[estimatedPosition];
 
-
 	//the returns the found value or if not calls the linear search on the rest of the array
 	if (valueAtEstimate == key)
 		return estimatedPosition;
 	else if (key < valueAtEstimate)
-		return LinearSearch(key, bottom, Constrain(estimatedPosition - 1, bottom, top));
+		return LinearSearchBackward(key, bottom, Constrain(estimatedPosition - 1, bottom, top));
 	else if (key > valueAtEstimate)
 		return LinearSearch(key, Constrain(estimatedPosition + 1, bottom, top), top);
 }
-
 
 //interplation and exponential hybrid search
 int InterpolationExponentialSearch(int key, int bottom, int top) {
@@ -210,17 +252,16 @@ int InterpolationExponentialSearch(int key, int bottom, int top) {
 	int estimatedPosition = InterpolateIndex(key, bottom, top);
 	int valueAtEstimate = base[estimatedPosition];
 
-
 	//the returns the found value or if not calls the exponential search on the rest of the array
 	if (valueAtEstimate == key)
 		return estimatedPosition;
 	else if (key < valueAtEstimate)
-		return ExponentialSearch(key, bottom, Constrain(estimatedPosition - 1, bottom, top));
+		return ExponentialSearchBackward(key, bottom, Constrain(estimatedPosition - 1, bottom, top));
 	else if (key > valueAtEstimate)
 		return ExponentialSearch(key, Constrain(estimatedPosition + 1, bottom, top), top);
 }
 
-
+//outputs the result
 void OutputFinalResult(int key, int returnedIndex) {
 
 	//outputs the result
@@ -236,6 +277,191 @@ void OutputFinalResult(int key, int returnedIndex) {
 
 }
 
+//tests the base search methods (interpolation, linear, exponential)
+void BaseSearchTest() {
+
+	int arrayCount = 100000;
+	int gapMin = 10;
+	int gapMax = 0;
+
+	std::cout << "Filling array with random numbers" << std::endl;
+	int maxVal = FillListRandom(arrayCount, gapMin, gapMax);
+	std::cout << "Array filled, generating random key to search for" << std::endl;
+
+	//gets a key that exists
+	int key = base[rand() % arrayCount];
+	std::cout << "Valid key generated";
+	std::cout << std::endl << std::endl << std::endl;
+
+	int returnedIndex;
+
+	//calls the interpolation search
+	comparisonCount = 0;
+	std::cout << "vv Interpolation search vv" << std::endl;
+	returnedIndex = InterpolateSearch(key, 0, arrayCount - 1, false, false);
+	OutputFinalResult(key, returnedIndex);
+	std::cout << std::endl;
+
+	//calls the linear search
+	comparisonCount = 0;
+	std::cout << "vv Linear search vv" << std::endl;
+	returnedIndex = LinearSearch(key, 0, arrayCount - 1);
+	OutputFinalResult(key, returnedIndex);
+	std::cout << std::endl;
+
+	//calls the linear backward search
+	comparisonCount = 0;
+	std::cout << "vv Linear backward search vv" << std::endl;
+	returnedIndex = LinearSearchBackward(key, 0, arrayCount - 1);
+	OutputFinalResult(key, returnedIndex);
+	std::cout << std::endl;
+
+	//calls the exponential search
+	comparisonCount = 0;
+	std::cout << "vv Exponential search vv" << std::endl;
+	returnedIndex = ExponentialSearch(key, 0, arrayCount - 1);
+	OutputFinalResult(key, returnedIndex);
+	std::cout << std::endl;
+
+	//calls the exponential backward search
+	comparisonCount = 0;
+	std::cout << "vv Exponential backward search vv" << std::endl;
+	returnedIndex = ExponentialSearchBackward(key, 0, arrayCount - 1);
+	OutputFinalResult(key, returnedIndex);
+	std::cout << std::endl;
+}
+
+//tests the hybrid search methods
+void HybridSearchTest() {
+
+	int arrayCount = 100000;
+	int gapMin = 10;
+	int gapMax = 0;
+
+	std::cout << "Filling array with random numbers" << std::endl;
+	int maxVal = FillListRandom(arrayCount, gapMin, gapMax);
+	std::cout << "Array filled, generating random key to search for" << std::endl;
+
+	//gets a key that exists
+	int key = base[rand() % arrayCount];
+	std::cout << "Valid key generated";
+	std::cout << std::endl << std::endl << std::endl;
+
+	int returnedIndex;
+
+	//calls the interpolation search
+	comparisonCount = 0;
+	std::cout << "vv Interpolation search vv" << std::endl;
+	returnedIndex = InterpolateSearch(key, 0, arrayCount - 1, false, false);
+	OutputFinalResult(key, returnedIndex);
+	std::cout << std::endl;
+
+	//calls the interpolation linear search
+	comparisonCount = 0;
+	std::cout << "vv Interplation linear search vv" << std::endl;
+	returnedIndex = InterpolationLinearSearch(key, 0, arrayCount - 1);
+	OutputFinalResult(key, returnedIndex);
+	std::cout << std::endl;
+
+	//calls the interpolation exponential search
+	comparisonCount = 0;
+	std::cout << "vv Interplation exponential search vv" << std::endl;
+	returnedIndex = InterpolationExponentialSearch(key, 0, arrayCount - 1);
+	OutputFinalResult(key, returnedIndex);
+	std::cout << std::endl;
+}
+
+//tests searching every value in the array
+void ExtensiveTest() {
+
+	int arrayCount = 100000;
+	int gapMin = 10;
+	int gapMax = 0;
+
+	FillListRandom(arrayCount, gapMin, gapMax);
+	int key;
+	int returnedIndex;
+
+	std::cout << "Starting searching all " << arrayCount << " values" << std::endl;
+	for (int i = 0; i < arrayCount; i++) {
+
+		key = base[i];
+
+		//calls the linear search
+		returnedIndex = LinearSearch(key, 0, arrayCount - 1);
+		if (returnedIndex != i)
+			std::cout << "Linear search wrong at: " << i << std::endl;
+
+		//calls the linear backward search
+		returnedIndex = LinearSearchBackward(key, 0, arrayCount - 1);
+		if (returnedIndex != i)
+			std::cout << "Linear backward search wrong at: " << i << std::endl;
+
+		//calls the exponential search
+		returnedIndex = ExponentialSearch(key, 0, arrayCount - 1);
+		if (returnedIndex != i)
+			std::cout << "Exponential search wrong at: " << i << std::endl;
+
+		//exponential backwards
+		returnedIndex = ExponentialSearchBackward(key, 0, arrayCount - 1);
+		if (returnedIndex != i)
+			std::cout << "Exponential backward search wrong at: " << i << std::endl;
+
+		//calls the interpolation search
+		returnedIndex = InterpolateSearch(key, 0, arrayCount - 1, false, false);
+		if (returnedIndex != i)
+			std::cout << "Interpolation search wrong at: " << i << std::endl;
+
+		//calls the interpolation linear search
+		returnedIndex = InterpolationLinearSearch(key, 0, arrayCount - 1);
+		if (returnedIndex != i)
+			std::cout << "Interpolation linear search wrong at: " << i << std::endl;
+
+		//calls the interpolation exponential search
+		returnedIndex = InterpolationExponentialSearch(key, 0, arrayCount - 1);
+		if (returnedIndex != i)
+			std::cout << "Interpolation exponential search wrong at: " << i << std::endl;
+	}
+	std::cout << "Extensive test done" << std::endl;
+}
+
+//Tests perfect arithmetic progression values (should always predict with the first interpolation)
+void SequentialTest() {
+
+	int arrayCount = 100000;
+
+	std::cout << "Filling sequential with random numbers" << std::endl;
+	int maxVal = FillList(arrayCount, 4);
+	std::cout << "Array filled, generating random key to search for" << std::endl;
+
+	//gets a key that exists
+	int key = base[rand() % arrayCount];
+	std::cout << "Key generated " << std::endl;
+	std::cout << std::endl << std::endl << std::endl;
+
+	int returnedIndex;
+
+	//calls the interpolation search
+	comparisonCount = 0;
+	std::cout << "vv Interpolation search vv" << std::endl;
+	returnedIndex = InterpolateSearch(key, 0, arrayCount - 1, false, false);
+	OutputFinalResult(key, returnedIndex);
+	std::cout << std::endl;
+
+	//calls the interpolation linear search
+	comparisonCount = 0;
+	std::cout << "vv Interplation linear search vv" << std::endl;
+	returnedIndex = InterpolationLinearSearch(key, 0, arrayCount - 1);
+	OutputFinalResult(key, returnedIndex);
+	std::cout << std::endl;
+
+	//calls the interpolation exponential search
+	comparisonCount = 0;
+	std::cout << "vv Interplation exponential search vv" << std::endl;
+	returnedIndex = InterpolationExponentialSearch(key, 0, arrayCount - 1);
+	OutputFinalResult(key, returnedIndex);
+	std::cout << std::endl;
+}
 
 int main() {
 
@@ -243,83 +469,10 @@ int main() {
 
 	do {
 
-		//-------------------search prep
-
-		int arrayCount = 10000000;
-		int gapMin = 10;
-		int gapMax = 0;
-
-		std::cout << "Filling array with random numbers" << std::endl;
-
-		//fills with random values with a given random gap
-		int maxVal = FillListRandom(arrayCount, gapMin, gapMax);
-
-		//fills with sequential data with a constant gap
-		//int maxVal = FillList(arrayCount, 4);
-
-		std::cout << "Array filled, generating random key to search for" << std::endl;
-
-
-		//gets a random key (might not exist)
-		//int key = rand() % maxVal;
-
-		//gets a key that exists
-		int key = base[rand() % arrayCount];
-
-		std::cout << "Key generated " << std::endl;
-		std::cout << std::endl << std::endl << std::endl;
-
-
-		//-------------------searches
-		int returnedIndex;
-
-
-		//calls the interpolation search
-		comparisonCount = 0;
-		std::cout << "vv Interpolation search vv" << std::endl;
-		returnedIndex = InterpolateSearch(key, 0, arrayCount - 1, false, false);
-		OutputFinalResult(key, returnedIndex);
-		std::cout << std::endl;
-
-
-
-		//calls the linear search
-		comparisonCount = 0;
-		std::cout << "vv Linear search vv" << std::endl;
-		returnedIndex = LinearSearch(key, 0, arrayCount - 1);
-		OutputFinalResult(key, returnedIndex);
-		std::cout << std::endl;
-
-
-
-		//calls the exponential search
-		comparisonCount = 0;
-		std::cout << "vv Exponential search vv" << std::endl;
-		returnedIndex = ExponentialSearch(key, 0, arrayCount - 1);
-		OutputFinalResult(key, returnedIndex);
-		std::cout << std::endl;
-
-
-
-		//calls the interpolation linear search
-		comparisonCount = 0;
-		std::cout << "vv Interplation linear search vv" << std::endl;
-		returnedIndex = InterpolationLinearSearch(key, 0, arrayCount - 1);
-		OutputFinalResult(key, returnedIndex);
-		std::cout << std::endl;
-
-
-
-		//calls the interpolation exponential search
-		comparisonCount = 0;
-		std::cout << "vv Interplation exponential search vv" << std::endl;
-		returnedIndex = InterpolationExponentialSearch(key, 0, arrayCount - 1);
-		OutputFinalResult(key, returnedIndex);
-		std::cout << std::endl;
+		HybridSearchTest();
 
 		std::cin >> input;
 		system("cls");
-
 		//repeats until x is pressed
 	} while (input != "x");
 }

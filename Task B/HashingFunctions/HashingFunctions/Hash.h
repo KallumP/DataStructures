@@ -3,6 +3,10 @@
 class Hash {
 
 public:
+	~Hash() {
+		delete hashTable;
+	}
+
 	virtual int GetAddress(int key) = 0;
 
 	//increments the value in the array where the key would be inserted
