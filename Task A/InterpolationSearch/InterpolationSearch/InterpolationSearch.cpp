@@ -31,13 +31,37 @@ int FillListRandom(int amount, int gapMin, int gapMax) {
 }
 
 //fills the list with a given amount of sequential numbers
-int FillList(int amount, int step) {
+int FillListSequential(int amount, int step) {
 
 	base = new int[amount];
 	for (int i = 0; i < amount; i++)
 		base[i] = i * step;
 
 	return amount * step;
+}
+
+//fills a list with a geometric progression
+int FillListGeometric(int amount, float ratio) {
+
+	base = new int[amount];
+	for (int i = 0; i < amount; i++)
+		base[i] = std::pow(ratio , i - 1);
+	
+	return std::pow(ratio, amount - 1);
+}
+
+//fills a list a perfectly fitting geometric progression
+int FillListGeometric(int amount) {
+
+	int max = 2147483647;
+	float ratio = std::pow(max, 1 / (float)amount);
+
+
+	base = new int[amount];
+	for (int i = 0; i < amount; i++)
+		base[i] = std::pow(ratio, i - 1);
+
+	return std::pow(ratio, amount - 1);
 }
 
 //outputs a slice of the array
@@ -236,6 +260,7 @@ int InterpolationLinearSearch(int key, int bottom, int top) {
 	int estimatedPosition = InterpolateIndex(key, bottom, top);
 	int valueAtEstimate = base[estimatedPosition];
 
+	comparisonCount++;
 	//the returns the found value or if not calls the linear search on the rest of the array
 	if (valueAtEstimate == key)
 		return estimatedPosition;
@@ -252,6 +277,7 @@ int InterpolationExponentialSearch(int key, int bottom, int top) {
 	int estimatedPosition = InterpolateIndex(key, bottom, top);
 	int valueAtEstimate = base[estimatedPosition];
 
+	comparisonCount++;
 	//the returns the found value or if not calls the exponential search on the rest of the array
 	if (valueAtEstimate == key)
 		return estimatedPosition;
@@ -285,7 +311,7 @@ void BaseSearchTest() {
 	int gapMax = 0;
 
 	std::cout << "Filling array with random numbers" << std::endl;
-	int maxVal = FillListRandom(arrayCount, gapMin, gapMax);
+	FillListRandom(arrayCount, gapMin, gapMax);
 	std::cout << "Array filled, generating random key to search for" << std::endl;
 
 	//gets a key that exists
@@ -339,7 +365,7 @@ void HybridSearchTest() {
 	int gapMax = 0;
 
 	std::cout << "Filling array with random numbers" << std::endl;
-	int maxVal = FillListRandom(arrayCount, gapMin, gapMax);
+	FillListRandom(arrayCount, gapMin, gapMax);
 	std::cout << "Array filled, generating random key to search for" << std::endl;
 
 	//gets a key that exists
@@ -425,14 +451,12 @@ void ExtensiveTest() {
 	std::cout << "Extensive test done" << std::endl;
 }
 
-//Tests perfect arithmetic progression values (should always predict with the first interpolation)
-void SequentialTest() {
+//tests perfect arithmetic progression values (should always predict with the first interpolation)
+void PerfectAPTest(int arrayCount, int gap) {
 
-	int arrayCount = 100000;
-
-	std::cout << "Filling sequential with random numbers" << std::endl;
-	int maxVal = FillList(arrayCount, 4);
-	std::cout << "Array filled, generating random key to search for" << std::endl;
+	std::cout << "Filling with sequential numbers" << std::endl;
+	FillListSequential(arrayCount, gap);
+	std::cout << "Array filled with: " << arrayCount << " gap: " << gap << ", generating key to search for" << std::endl;
 
 	//gets a key that exists
 	int key = base[rand() % arrayCount];
@@ -463,13 +487,110 @@ void SequentialTest() {
 	std::cout << std::endl;
 }
 
+//tests random numbers that aproximate arithmetic progression
+void RandomAPTest(int arrayCount, int gapMin, int gapMax) {
+
+	std::cout << "Filling with random numbers" << std::endl;
+	FillListRandom(arrayCount, gapMin, gapMax);
+	std::cout << "Array filled with: " << arrayCount << ", generating random key to search for" << std::endl;
+
+	//gets a key that exists
+	int key = base[rand() % arrayCount];
+	std::cout << "Key generated " << std::endl;
+	std::cout << std::endl << std::endl << std::endl;
+
+	int returnedIndex;
+
+	//calls the interpolation search
+	comparisonCount = 0;
+	std::cout << "vv Interpolation search vv" << std::endl;
+	returnedIndex = InterpolateSearch(key, 0, arrayCount - 1, false, false);
+	OutputFinalResult(key, returnedIndex);
+	std::cout << std::endl;
+
+	//calls the interpolation linear search
+	comparisonCount = 0;
+	std::cout << "vv Interplation linear search vv" << std::endl;
+	returnedIndex = InterpolationLinearSearch(key, 0, arrayCount - 1);
+	OutputFinalResult(key, returnedIndex);
+	std::cout << std::endl;
+
+	//calls the interpolation exponential search
+	comparisonCount = 0;
+	std::cout << "vv Interplation exponential search vv" << std::endl;
+	returnedIndex = InterpolationExponentialSearch(key, 0, arrayCount - 1);
+	OutputFinalResult(key, returnedIndex);
+	std::cout << std::endl;
+}
+
+void GeometricTest(int arrayCount, float ratio) {
+
+	std::cout << "Filling with a geometric progression" << std::endl;
+	FillListGeometric(arrayCount, ratio);
+	std::cout << "Array filled with: " << arrayCount << ", ratio: " << ratio << ", generating random key to search for" << std::endl;
+	//OutputList(0, arrayCount - 1);
+
+	//gets a key that exists
+	int key = base[rand() % arrayCount];
+	std::cout << "Key generated " << std::endl;
+	std::cout << std::endl << std::endl << std::endl;
+
+	int returnedIndex;
+
+	//calls the interpolation search
+	comparisonCount = 0;
+	std::cout << "vv Interpolation search vv" << std::endl;
+	returnedIndex = InterpolateSearch(key, 0, arrayCount - 1, false, false);
+	OutputFinalResult(key, returnedIndex);
+	std::cout << std::endl << std::endl;
+
+	//calls the linear search
+	comparisonCount = 0;
+	std::cout << "vv Linear search vv" << std::endl;
+	returnedIndex = LinearSearch(key, 0, arrayCount - 1);
+	OutputFinalResult(key, returnedIndex);
+	std::cout << std::endl;
+
+	//calls the interpolation linear search
+	comparisonCount = 0;
+	std::cout << "vv Interplation linear search vv" << std::endl;
+	returnedIndex = InterpolationLinearSearch(key, 0, arrayCount - 1);
+	OutputFinalResult(key, returnedIndex);
+	std::cout << std::endl << std::endl;
+
+
+
+	//calls the interpolation exponential search
+	comparisonCount = 0;
+	std::cout << "vv Interplation exponential search vv" << std::endl;
+	returnedIndex = InterpolationExponentialSearch(key, 0, arrayCount - 1);
+	OutputFinalResult(key, returnedIndex);
+	std::cout << std::endl;
+
+	//calls the exponential search
+	comparisonCount = 0;
+	std::cout << "vv Exponential search vv" << std::endl;
+	returnedIndex = ExponentialSearch(key, 0, arrayCount - 1);
+	OutputFinalResult(key, returnedIndex);
+	std::cout << std::endl;
+
+
+
+}
+
 int main() {
 
 	std::string input;
 
 	do {
+		
+		//BaseSearchTest();
+		//HybridSearchTest();
+		//ExtensiveTest();
+		//PerfectAPTest(1000, 3);
+		//RandomAPTest(100000000, 0, 10);
 
-		HybridSearchTest();
+		GeometricTest(100, 1.23);
 
 		std::cin >> input;
 		system("cls");
