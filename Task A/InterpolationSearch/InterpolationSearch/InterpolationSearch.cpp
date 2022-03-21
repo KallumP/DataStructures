@@ -2,6 +2,7 @@
 #include <vector>
 #include <algorithm>
 
+#include "Data.h"
 
 
 //std::vector<int> base;
@@ -590,7 +591,9 @@ int main() {
 		//PerfectAPTest(1000, 3);
 		//RandomAPTest(100000000, 0, 10);
 
-		GeometricTest(100, 1.23);
+		//GeometricTest(100, 1.23);
+
+		Data d;
 
 		std::cin >> input;
 		system("cls");
