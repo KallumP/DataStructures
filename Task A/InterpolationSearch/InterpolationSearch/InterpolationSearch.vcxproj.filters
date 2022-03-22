@@ -32,7 +32,7 @@
     <ClInclude Include="supportLib.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Data.h">
+    <ClInclude Include="Grapher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

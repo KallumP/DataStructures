@@ -2,7 +2,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "Data.h"
+#include "Grapher.h"
 
 
 //std::vector<int> base;
@@ -42,27 +42,23 @@ int FillListSequential(int amount, int step) {
 }
 
 //fills a list with a geometric progression
-int FillListGeometric(int amount, float ratio) {
-
-	base = new int[amount];
-	for (int i = 0; i < amount; i++)
-		base[i] = std::pow(ratio , i - 1);
-	
-	return std::pow(ratio, amount - 1);
-}
-
-//fills a list a perfectly fitting geometric progression
-int FillListGeometric(int amount) {
-
-	int max = 2147483647;
-	float ratio = std::pow(max, 1 / (float)amount);
-
+int FillListGeometric(int amount, double ratio) {
 
 	base = new int[amount];
 	for (int i = 0; i < amount; i++)
 		base[i] = std::pow(ratio, i - 1);
 
 	return std::pow(ratio, amount - 1);
+}
+
+//fills a list a perfectly fitting geometric progression
+float GetBestRatio(int amount) {
+
+	int max = 2147483647;
+	double ratio = std::pow(max, 1 / (double)amount);
+
+
+	return ratio;
 }
 
 //outputs a slice of the array
@@ -316,6 +312,7 @@ void BaseSearchTest() {
 	std::cout << "Array filled, generating random key to search for" << std::endl;
 
 	//gets a key that exists
+	srand(time(0));
 	int key = base[rand() % arrayCount];
 	std::cout << "Valid key generated";
 	std::cout << std::endl << std::endl << std::endl;
@@ -370,6 +367,7 @@ void HybridSearchTest() {
 	std::cout << "Array filled, generating random key to search for" << std::endl;
 
 	//gets a key that exists
+	srand(time(0));
 	int key = base[rand() % arrayCount];
 	std::cout << "Valid key generated";
 	std::cout << std::endl << std::endl << std::endl;
@@ -460,6 +458,7 @@ void PerfectAPTest(int arrayCount, int gap) {
 	std::cout << "Array filled with: " << arrayCount << " gap: " << gap << ", generating key to search for" << std::endl;
 
 	//gets a key that exists
+	srand(time(0));
 	int key = base[rand() % arrayCount];
 	std::cout << "Key generated " << std::endl;
 	std::cout << std::endl << std::endl << std::endl;
@@ -496,6 +495,7 @@ void RandomAPTest(int arrayCount, int gapMin, int gapMax) {
 	std::cout << "Array filled with: " << arrayCount << ", generating random key to search for" << std::endl;
 
 	//gets a key that exists
+	srand(time(0));
 	int key = base[rand() % arrayCount];
 	std::cout << "Key generated " << std::endl;
 	std::cout << std::endl << std::endl << std::endl;
@@ -524,6 +524,7 @@ void RandomAPTest(int arrayCount, int gapMin, int gapMax) {
 	std::cout << std::endl;
 }
 
+//tests numbers that fit a geometric progression
 void GeometricTest(int arrayCount, float ratio) {
 
 	std::cout << "Filling with a geometric progression" << std::endl;
@@ -532,6 +533,7 @@ void GeometricTest(int arrayCount, float ratio) {
 	//OutputList(0, arrayCount - 1);
 
 	//gets a key that exists
+	srand(time(0));
 	int key = base[rand() % arrayCount];
 	std::cout << "Key generated " << std::endl;
 	std::cout << std::endl << std::endl << std::endl;
@@ -575,25 +577,87 @@ void GeometricTest(int arrayCount, float ratio) {
 	OutputFinalResult(key, returnedIndex);
 	std::cout << std::endl;
 
+}
 
+//does a geometric test and 
+void GraphGeometricRandomKeys(int minArray, int maxArray, int arrayStep, int searchCount, bool debug) {
 
+	//gets the best ratio for the largest array size
+	double ratio = GetBestRatio(maxArray);
+
+	Grapher* g = new Grapher();
+
+	//loops through the different array sizes (powers of ten)
+	for (int i = minArray; i <= maxArray; i += arrayStep) {
+
+		int arrayCount = i;
+
+		if (debug)
+			std::cout << "Filling with a geometric progression" << std::endl;
+		FillListGeometric(arrayCount, ratio);
+		if (debug)
+			std::cout << "Array filled with: " << arrayCount << ", ratio: " << ratio << ", generating random key to search for" << std::endl;
+
+		srand(time(0));
+
+		//does the search on a set amount of random keys
+		for (int i = 0; i < searchCount; i++) {
+
+			//gets a key that exists
+			int key = base[rand() % arrayCount];
+			if (debug)
+				std::cout << "Key generated: " << key << std::endl;
+
+			int returnedIndex;
+
+			//calls the interpolation search and saves its data to the grapher
+			comparisonCount = 0;
+			returnedIndex = InterpolateSearch(key, 0, arrayCount - 1, false, false);
+			g->TakeSizeValues(arrayCount, comparisonCount, -1, -1, -1, -1);
+
+			//calls the linear search and saves its data to the grapher
+			comparisonCount = 0;
+			returnedIndex = LinearSearch(key, 0, arrayCount - 1);
+			g->TakeSizeValues(arrayCount, -1, comparisonCount, -1, -1, -1);
+
+			//calls the exponential search and saves its data to the grapher
+			comparisonCount = 0;
+			returnedIndex = ExponentialSearch(key, 0, arrayCount - 1);
+			g->TakeSizeValues(arrayCount, -1, -1, comparisonCount, -1, -1);
+
+			//calls the exponential search and saves its data to the grapher
+			comparisonCount = 0;
+			returnedIndex = InterpolationLinearSearch(key, 0, arrayCount - 1);
+			g->TakeSizeValues(arrayCount, -1, -1, -1, comparisonCount, -1);
+
+			//calls the exponential search and saves its data to the grapher
+			comparisonCount = 0;
+			returnedIndex = ExponentialSearch(key, 0, arrayCount - 1);
+			g->TakeSizeValues(arrayCount, -1, -1, -1, -1, comparisonCount);
+		}
+	}
+
+	//g->DrawInterpolationGraph(L"Geometric data random keys", "geometric, random.png");
+	g->DrawAllSearchGraphs(L"Geometric data random keys", "geometric, random.png");
+
+	delete g;
+
+	std::cout << "Geometric random done" << std::endl;
 }
 
 int main() {
 
 	std::string input;
-
 	do {
-		
+
 		//BaseSearchTest();
 		//HybridSearchTest();
 		//ExtensiveTest();
 		//PerfectAPTest(1000, 3);
 		//RandomAPTest(100000000, 0, 10);
+		//GeometricTest(10000, GetBestRatio(10000));
 
-		//GeometricTest(100, 1.23);
-
-		Data d;
+		GraphGeometricRandomKeys(100, 5000, 10, 200, false);
 
 		std::cin >> input;
 		system("cls");

@@ -144,7 +144,7 @@
     <ClCompile Include="supportLib.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Data.h" />
+    <ClInclude Include="Grapher.h" />
     <ClInclude Include="pbPlots.hpp" />
     <ClInclude Include="supportLib.hpp" />
   </ItemGroup>
