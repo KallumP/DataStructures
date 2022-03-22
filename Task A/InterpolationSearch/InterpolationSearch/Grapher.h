@@ -128,76 +128,7 @@ public:
 		legendY = -10;
 	}
 
-	void DrawInterpolationGraph(const wchar_t* graphTitle, std::string imageName) {
-
-		bool success;
-		StringReference* errorMessage = new StringReference();
-		RGBABitmapImageReference* imageReference = CreateRGBABitmapImageReference();
-
-		//sets up the graph
-		ScatterPlotSettings* settings = GetDefaultScatterPlotSettings();
-		settings->width = graphWidth;
-		settings->height = graphHeight;
-		settings->autoBoundaries = true;
-		settings->autoPadding = true;
-		settings->title = toVector(graphTitle);;
-		settings->xLabel = toVector(L"Table size");
-		settings->yLabel = toVector(L"Comparisons");
-
-		//sets up the series for interpolation
-		ScatterPlotSeries* InterpolationSeries = GetDefaultScatterPlotSeriesSettings();
-		Points pInter = PrepareData(data.GetInterpolationData());
-		InterpolationSeries->xs = &pInter.toDrawX;
-		InterpolationSeries->ys = &pInter.toDrawY;
-		InterpolationSeries->linearInterpolation = true;
-		InterpolationSeries->lineType = toVector(L"solid");
-		InterpolationSeries->color = interpolationColor;
-		settings->scatterPlotSeries->push_back(InterpolationSeries);
-
-		//sets up the series for inter linear
-		ScatterPlotSeries* InterLinearSeries = GetDefaultScatterPlotSeriesSettings();
-		Points pInterLin = PrepareData(data.GetInterpolationLinearData());
-		InterLinearSeries->xs = &pInterLin.toDrawX;
-		InterLinearSeries->ys = &pInterLin.toDrawY;
-		InterLinearSeries->linearInterpolation = true;
-		InterLinearSeries->lineType = toVector(L"solid");
-		InterLinearSeries->color = interpolationLinearColor;
-		settings->scatterPlotSeries->push_back(InterLinearSeries);
-
-		//sets up the data for inter expo
-		ScatterPlotSeries* InterExpoSeries = GetDefaultScatterPlotSeriesSettings();
-		Points pInterExpo = PrepareData(data.GetInterpolationExponentialData());
-		InterExpoSeries->xs = &pInterExpo.toDrawX;
-		InterExpoSeries->ys = &pInterExpo.toDrawY;
-		InterExpoSeries->linearInterpolation = true;
-		InterExpoSeries->lineType = toVector(L"solid");
-		InterExpoSeries->color = interpolationExponentialColor;
-		settings->scatterPlotSeries->push_back(InterExpoSeries);
-
-		//draws all the graph series
-		success = DrawScatterPlotFromSettings(imageReference, settings, errorMessage);
-
-		//draws the legend
-		DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Interpolation"), interpolationColor);
-		DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Interpolation Linear"), interpolationLinearColor);
-		DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Interpolation Exponential"), interpolationExponentialColor);
-
-
-		//saves the graph to an image
-		if (success) {
-			std::vector<double>* pngdata = ConvertToPNG(imageReference->image);
-			WriteToFile(pngdata, imageName);
-			DeleteImage(imageReference->image);
-		} else {
-			std::cerr << "Error: ";
-			for (wchar_t c : *errorMessage->string) {
-				std::wcerr << c;
-			}
-			std::cerr << std::endl;
-		}
-	}
-
-	void DrawAllSearchGraphs(const wchar_t* graphTitle, std::string imageName) {
+	void DrawGraphs(const wchar_t* graphTitle, std::string imageName, bool linear, bool exponential) {
 
 		bool success;
 		StringReference* errorMessage = new StringReference();
@@ -251,27 +182,35 @@ public:
 		LinearSeries->linearInterpolation = true;
 		LinearSeries->lineType = toVector(L"solid");
 		LinearSeries->color = linearColor;
-		settings->scatterPlotSeries->push_back(LinearSeries);
+		if (linear)
+			settings->scatterPlotSeries->push_back(LinearSeries);
+
 
 		//sets up the series for exponential
-		ScatterPlotSeries* ExpoSeries = GetDefaultScatterPlotSeriesSettings();
 		Points pExpo = PrepareData(data.GetExponentialData());
+		ScatterPlotSeries* ExpoSeries = GetDefaultScatterPlotSeriesSettings();
 		ExpoSeries->xs = &pExpo.toDrawX;
 		ExpoSeries->ys = &pExpo.toDrawY;
 		ExpoSeries->linearInterpolation = true;
 		ExpoSeries->lineType = toVector(L"solid");
 		ExpoSeries->color = exponentialColor;
-		settings->scatterPlotSeries->push_back(ExpoSeries);
+		if (exponential)
+			settings->scatterPlotSeries->push_back(ExpoSeries);
+
 
 		//draws all the graph series
 		success = DrawScatterPlotFromSettings(imageReference, settings, errorMessage);
+
+		legendY = -10;
 
 		//draws the legend
 		DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Interpolation"), interpolationColor);
 		DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Interpolation Linear"), interpolationLinearColor);
 		DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Interpolation Exponential"), interpolationExponentialColor);
-		DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Linear"), linearColor);
-		DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Exponential"), exponentialColor);
+		if (linear)
+			DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Linear"), linearColor);
+		if (exponential)
+			DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Exponential"), exponentialColor);
 
 		//saves the graph to an image
 		if (success) {
