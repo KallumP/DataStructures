@@ -579,6 +579,139 @@ void GeometricTest(int arrayCount, float ratio) {
 
 }
 
+//graphs doing a set of arithmetic series approximation arrays with random keys
+void GraphArithmeticRandomKeys(int minArray, int maxArray, int arrayStep, int searchCount, bool debug) {
+
+	Grapher* g = new Grapher();
+
+	//loops through the different array sizes (powers of ten)
+	for (int i = minArray; i <= maxArray; i += arrayStep) {
+
+		int arrayCount = i;
+		std::cout << "Progress: " << i << "/" << maxArray << std::endl;
+
+		if (debug)
+			std::cout << "Filling with a arithmetic progression" << std::endl;
+		FillListRandom(arrayCount, 0, 100);
+		if (debug)
+			std::cout << "Array filled with: " << arrayCount << ", generating random key to search for" << std::endl;
+
+		srand(time(0));
+
+		//does the search on a set amount of random keys
+		for (int i = 0; i < searchCount; i++) {
+
+			//gets a key that exists
+			int key = base[rand() % arrayCount];
+			if (debug)
+				std::cout << "Key generated: " << key << std::endl;
+
+			int returnedIndex;
+
+			//calls the interpolation search and saves its data to the grapher
+			comparisonCount = 0;
+			returnedIndex = InterpolateSearch(key, 0, arrayCount - 1, false, false);
+			g->TakeSizeValues(arrayCount, comparisonCount, -1, -1, -1, -1);
+
+			//calls the linear search and saves its data to the grapher
+			comparisonCount = 0;
+			returnedIndex = LinearSearch(key, 0, arrayCount - 1);
+			g->TakeSizeValues(arrayCount, -1, comparisonCount, -1, -1, -1);
+
+			//calls the exponential search and saves its data to the grapher
+			comparisonCount = 0;
+			returnedIndex = ExponentialSearch(key, 0, arrayCount - 1);
+			g->TakeSizeValues(arrayCount, -1, -1, comparisonCount, -1, -1);
+
+			//calls the exponential search and saves its data to the grapher
+			comparisonCount = 0;
+			returnedIndex = InterpolationLinearSearch(key, 0, arrayCount - 1);
+			g->TakeSizeValues(arrayCount, -1, -1, -1, comparisonCount, -1);
+
+			//calls the exponential search and saves its data to the grapher
+			comparisonCount = 0;
+			returnedIndex = InterpolationExponentialSearch(key, 0, arrayCount - 1);
+			g->TakeSizeValues(arrayCount, -1, -1, -1, -1, comparisonCount);
+		}
+	}
+
+	g->DrawGraphs(L"Arithmetic data random keys", "_arithmetic, random.png", true, true);
+	g->DrawGraphs(L"Arithmetic data random keys (no linear)", "_arithmetic, random.png (no linear).png", false, true);
+
+	delete g;
+
+	std::cout << "Arithmetic random done" << std::endl;
+}
+
+//graphs doing a set of perfect arithmetic series arrays with random keys
+void GraphArithmeticBestCase(int minArray, int maxArray, int arrayStep, int searchCount, bool debug) {
+
+	Grapher* g = new Grapher();
+
+	//loops through the different array sizes (powers of ten)
+	for (int i = minArray; i <= maxArray; i += arrayStep) {
+
+		int arrayCount = i;
+		std::cout << "Progress: " << i << "/" << maxArray << std::endl;
+
+		if (debug)
+			std::cout << "Filling with a arithmetic progression" << std::endl;
+		FillListSequential(arrayCount, 1);
+		if (debug)
+			std::cout << "Array filled with: " << arrayCount << ", generating random key to search for" << std::endl;
+
+		srand(time(0));
+
+		//does the search on a set amount of random keys
+		for (int i = 0; i < searchCount; i++) {
+
+			//gets a key that exists
+			int key = base[rand() % arrayCount];
+			if (debug)
+				std::cout << "Key generated: " << key << std::endl;
+
+			int returnedIndex;
+
+			//calls the interpolation search and saves its data to the grapher
+			comparisonCount = 0;
+			returnedIndex = InterpolateSearch(key, 0, arrayCount - 1, false, false);
+			g->TakeSizeValues(arrayCount, comparisonCount, -1, -1, -1, -1);
+			if (comparisonCount > 1) {
+
+				std::cout << "2 comps at" << std::endl;
+				OutputList(0, arrayCount - 1);
+			}
+
+			//calls the linear search and saves its data to the grapher
+			comparisonCount = 0;
+			returnedIndex = LinearSearch(key, 0, arrayCount - 1);
+			g->TakeSizeValues(arrayCount, -1, comparisonCount, -1, -1, -1);
+
+			//calls the exponential search and saves its data to the grapher
+			comparisonCount = 0;
+			returnedIndex = ExponentialSearch(key, 0, arrayCount - 1);
+			g->TakeSizeValues(arrayCount, -1, -1, comparisonCount, -1, -1);
+
+			//calls the exponential search and saves its data to the grapher
+			comparisonCount = 0;
+			returnedIndex = InterpolationLinearSearch(key, 0, arrayCount - 1);
+			g->TakeSizeValues(arrayCount, -1, -1, -1, comparisonCount, -1);
+
+			//calls the exponential search and saves its data to the grapher
+			comparisonCount = 0;
+			returnedIndex = InterpolationExponentialSearch(key, 0, arrayCount - 1);
+			g->TakeSizeValues(arrayCount, -1, -1, -1, -1, comparisonCount);
+		}
+	}
+
+	g->DrawGraphs(L"Perfect arithmetic series", "_perfect arithmetic.png", true, true);
+	g->DrawGraphs(L"Perfect arithmetic series (no linear)", "_perfect arithmetic (no linear).png", false, true);
+
+	delete g;
+
+	std::cout << "Arithmetic random done" << std::endl;
+}
+
 //does set of geometric progression for the given array sizes and graphs the avarage comparisons for each search type
 void GraphGeometricRandomKeys(int minArray, int maxArray, int arrayStep, int searchCount, bool debug) {
 
@@ -645,72 +778,6 @@ void GraphGeometricRandomKeys(int minArray, int maxArray, int arrayStep, int sea
 	std::cout << "Geometric random done" << std::endl;
 }
 
-
-void GraphArithmeticRandomKeys(int minArray, int maxArray, int arrayStep, int searchCount, bool debug) {
-
-	Grapher* g = new Grapher();
-
-	//loops through the different array sizes (powers of ten)
-	for (int i = minArray; i <= maxArray; i += arrayStep) {
-
-		int arrayCount = i;
-		std::cout << "Progress: " << i << "/" << maxArray << std::endl;
-
-		if (debug)
-			std::cout << "Filling with a arithmetic progression" << std::endl;
-		FillListRandom(arrayCount, 0, 100);
-		if (debug)
-			std::cout << "Array filled with: " << arrayCount << ", generating random key to search for" << std::endl;
-
-		srand(time(0));
-
-		//does the search on a set amount of random keys
-		for (int i = 0; i < searchCount; i++) {
-
-			//gets a key that exists
-			int key = base[rand() % arrayCount];
-			if (debug)
-				std::cout << "Key generated: " << key << std::endl;
-
-			int returnedIndex;
-
-			//calls the interpolation search and saves its data to the grapher
-			comparisonCount = 0;
-			returnedIndex = InterpolateSearch(key, 0, arrayCount - 1, false, false);
-			g->TakeSizeValues(arrayCount, comparisonCount, -1, -1, -1, -1);
-
-			//calls the linear search and saves its data to the grapher
-			comparisonCount = 0;
-			returnedIndex = LinearSearch(key, 0, arrayCount - 1);
-			g->TakeSizeValues(arrayCount, -1, comparisonCount, -1, -1, -1);
-
-			//calls the exponential search and saves its data to the grapher
-			comparisonCount = 0;
-			returnedIndex = ExponentialSearch(key, 0, arrayCount - 1);
-			g->TakeSizeValues(arrayCount, -1, -1, comparisonCount, -1, -1);
-
-			//calls the exponential search and saves its data to the grapher
-			comparisonCount = 0;
-			returnedIndex = InterpolationLinearSearch(key, 0, arrayCount - 1);
-			g->TakeSizeValues(arrayCount, -1, -1, -1, comparisonCount, -1);
-
-			//calls the exponential search and saves its data to the grapher
-			comparisonCount = 0;
-			returnedIndex = InterpolationExponentialSearch(key, 0, arrayCount - 1);
-			g->TakeSizeValues(arrayCount, -1, -1, -1, -1, comparisonCount);
-		}
-	}
-
-	//g->DrawInterpolationGraph(L"Geometric data random keys", "geometric, random.png");
-	g->DrawGraphs(L"Arithmetic data (no linear) random keys", "_arithmetic, random.png", false, true);
-	g->DrawGraphs(L"Arithmetic data random keys", "_arithmetic, random wLinear.png", true, true);
-
-	delete g;
-
-	std::cout << "Arithmetic random done" << std::endl;
-}
-
-
 int main() {
 
 	std::string input;
@@ -728,9 +795,11 @@ int main() {
 
 		//GeometricTest(10000, GetBestRatio(10000));
 
-		//GraphGeometricRandomKeys(100, 5000, 10, 200, false);
+		//GraphArithmeticRandomKeys(10, 30000, 100, 200, false);
 
-		GraphArithmeticRandomKeys(10, 30000, 100, 200, false);
+		//GraphArithmeticBestCase(100, 10000, 100, 10, false);
+
+		GraphGeometricRandomKeys(100, 5000, 10, 200, false);
 
 		std::cin >> input;
 		system("cls");
