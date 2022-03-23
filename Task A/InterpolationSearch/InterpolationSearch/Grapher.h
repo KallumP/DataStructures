@@ -128,7 +128,7 @@ public:
 		legendY = -10;
 	}
 
-	void DrawGraphs(const wchar_t* graphTitle, std::string imageName, bool linear, bool exponential) {
+	void DrawGraph(const wchar_t* graphTitle, std::string imageName, bool linear, bool exponential, bool inter, bool interLin, bool interExp) {
 
 		bool success;
 		StringReference* errorMessage = new StringReference();
@@ -152,7 +152,8 @@ public:
 		InterpolationSeries->linearInterpolation = true;
 		InterpolationSeries->lineType = toVector(L"solid");
 		InterpolationSeries->color = interpolationColor;
-		settings->scatterPlotSeries->push_back(InterpolationSeries);
+		if (inter)
+			settings->scatterPlotSeries->push_back(InterpolationSeries);
 
 		//sets up the series for inter linear
 		ScatterPlotSeries* InterLinearSeries = GetDefaultScatterPlotSeriesSettings();
@@ -162,7 +163,8 @@ public:
 		InterLinearSeries->linearInterpolation = true;
 		InterLinearSeries->lineType = toVector(L"solid");
 		InterLinearSeries->color = interpolationLinearColor;
-		settings->scatterPlotSeries->push_back(InterLinearSeries);
+		if (interLin)
+			settings->scatterPlotSeries->push_back(InterLinearSeries);
 
 		//sets up the data for inter expo
 		ScatterPlotSeries* InterExpoSeries = GetDefaultScatterPlotSeriesSettings();
@@ -172,7 +174,8 @@ public:
 		InterExpoSeries->linearInterpolation = true;
 		InterExpoSeries->lineType = toVector(L"solid");
 		InterExpoSeries->color = interpolationExponentialColor;
-		settings->scatterPlotSeries->push_back(InterExpoSeries);
+		if (interExp)
+			settings->scatterPlotSeries->push_back(InterExpoSeries);
 
 		//sets up the series for linear
 		ScatterPlotSeries* LinearSeries = GetDefaultScatterPlotSeriesSettings();
@@ -204,9 +207,12 @@ public:
 		legendY = -10;
 
 		//draws the legend
-		DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Interpolation"), interpolationColor);
-		DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Interpolation Linear"), interpolationLinearColor);
-		DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Interpolation Exponential"), interpolationExponentialColor);
+		if (inter)
+			DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Interpolation"), interpolationColor);
+		if (interLin)
+			DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Interpolation Linear"), interpolationLinearColor);
+		if (interExp)
+			DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Interpolation Exponential"), interpolationExponentialColor);
 		if (linear)
 			DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Linear"), linearColor);
 		if (exponential)
