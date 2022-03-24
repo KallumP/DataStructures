@@ -48,7 +48,7 @@ void FillListGeometric(int amount, double ratio) {
 float GetBestRatio(int amount) {
 
 	int max = 2147483647;
-	double ratio = std::pow(max, 1 / (double)amount);
+	double ratio = std::pow(max, 1 / (double)(amount - 1));
 
 	return ratio;
 }
@@ -394,7 +394,6 @@ void ExtensiveTest() {
 
 	std::cout << "Extensive test" << std::endl;
 
-
 	int arrayCount = 100000;
 	int gapMin = 10;
 	int gapMax = 0;
@@ -640,8 +639,8 @@ void GraphArithmeticRandomKeys(int minArray, int maxArray, int arrayStep, int se
 		}
 	}
 
-	g->DrawGraph(L"Arithmetic data random keys", "_arithmetic, random.png", true, true, true, true, true);
-	g->DrawGraph(L"Arithmetic data random keys (no linear)", "_arithmetic, random (no linear).png", false, true, true, true, true);
+	g->DrawGraph(L"Arithmetic data random keys", L"Table size", "_arithmetic, random.png", true, true, true, true, true);
+	g->DrawGraph(L"Arithmetic data random keys (no linear)", L"Table size", "_arithmetic, random (no linear).png", false, true, true, true, true);
 
 	delete g;
 
@@ -706,8 +705,8 @@ void GraphArithmeticBestCase(int minArray, int maxArray, int arrayStep, int sear
 		}
 	}
 
-	g->DrawGraph(L"Perfect arithmetic series", "_perfect arithmetic.png", true, true, true, true, true);
-	g->DrawGraph(L"Perfect arithmetic series (no linear)", "_perfect arithmetic (no linear).png", false, true, true, true, true);
+	g->DrawGraph(L"Perfect arithmetic series", L"Table size", "_perfect arithmetic.png", true, true, true, true, true);
+	g->DrawGraph(L"Perfect arithmetic series (no linear)", L"Table size", "_perfect arithmetic (no linear).png", false, true, true, true, true);
 
 	delete g;
 
@@ -774,8 +773,8 @@ void GraphGeometricRandomKeys(int minArray, int maxArray, int arrayStep, int sea
 		}
 	}
 
-	g->DrawGraph(L"Geometric data random keys", "_geometric, random.png", true, true, true, true, true);
-	g->DrawGraph(L"Geometric data random keys (Only exponentials)", "_geometric, random (only exponentials).png", false, true, false, false, true);
+	g->DrawGraph(L"Geometric data random keys", L"Table size", "_geometric, random.png", true, true, true, true, true);
+	g->DrawGraph(L"Geometric data random keys (Only exponentials)", L"Table size", "_geometric, random (only exponentials).png", false, true, false, false, true);
 
 	delete g;
 
@@ -827,11 +826,142 @@ void GraphGeometricRandomKeysExponentialsOnly(int minArray, int maxArray, int ar
 		}
 	}
 
-	g->DrawGraph(L"Geometric data random keys (Only exponentials)", "_geometric, random (only exponentials) large array size.png", false, true, false, false, true);
+	g->DrawGraph(L"Geometric data random keys (Only exponentials)", L"Table size", "_geometric, random (only exponentials) large array size.png", false, true, false, false, true);
 
 	delete g;
 
 	std::cout << "Geometric random done" << std::endl << std::endl;
+}
+
+//does set of geometric progression for the given array sizes, searches for the first value and graphs the comparisons for each search type
+void GeometricBestCase(int minArray, int maxArray, int arrayStep, bool debug) {
+
+	std::cout << "Graphing geometric series best case" << std::endl;
+
+	//gets the best ratio for the largest array size
+	double ratio = GetBestRatio(maxArray);
+
+	Grapher* g = new Grapher();
+
+	//loops through the different array sizes (powers of ten)
+	for (int i = minArray; i <= maxArray; i += arrayStep) {
+
+		int arrayCount = i;
+
+		if (debug)
+			std::cout << "Filling with a geometric progression" << std::endl;
+		FillListGeometric(arrayCount, ratio);
+		if (debug)
+			std::cout << "Array filled with: " << arrayCount << ", ratio: " << ratio << ", generating random key to search for" << std::endl;
+
+		//gets a key that exists
+		int key = base[0];
+		if (debug)
+			std::cout << "Key generated: " << key << std::endl;
+
+		int returnedIndex;
+
+		//calls the interpolation search and saves its data to the grapher
+		comparisonCount = 0;
+		returnedIndex = InterpolateSearch(key, 0, arrayCount - 1, false, false);
+		g->TakeSizeValues(arrayCount, comparisonCount, -1, -1, -1, -1);
+
+		//calls the linear search and saves its data to the grapher
+		comparisonCount = 0;
+		returnedIndex = LinearSearch(key, 0, arrayCount - 1);
+		g->TakeSizeValues(arrayCount, -1, comparisonCount, -1, -1, -1);
+
+		//calls the exponential search and saves its data to the grapher
+		comparisonCount = 0;
+		returnedIndex = ExponentialSearch(key, 0, arrayCount - 1);
+		g->TakeSizeValues(arrayCount, -1, -1, comparisonCount, -1, -1);
+
+		//calls the linear interpolation search and saves its data to the grapher
+		comparisonCount = 0;
+		returnedIndex = InterpolationLinearSearch(key, 0, arrayCount - 1);
+		g->TakeSizeValues(arrayCount, -1, -1, -1, comparisonCount, -1);
+
+		//calls the exponential interpolation search and saves its data to the grapher
+		comparisonCount = 0;
+		returnedIndex = InterpolationExponentialSearch(key, 0, arrayCount - 1);
+		g->TakeSizeValues(arrayCount, -1, -1, -1, -1, comparisonCount);
+
+	}
+
+	g->DrawGraph(L"Geometric data first value key", L"Table size", "_geometric, first value.png", true, true, true, true, true);
+
+	delete g;
+
+	std::cout << "Geometric best case done" << std::endl << std::endl;
+}
+
+
+void GeometricRatios(int arrayCount, int ratioCount, bool debug) {
+
+	std::cout << "Graphing different geometric series middle key" << std::endl;
+
+	//gets the best ratio for the largest array size
+	double maxRatio = GetBestRatio(arrayCount);
+
+	double minRatio = 1.0;
+
+	double difference = maxRatio - minRatio;
+
+	double ratioStep = difference / ratioCount;
+
+	Grapher* g = new Grapher();
+
+
+	for (double i = minRatio; i < maxRatio; i += ratioStep) {
+
+		double ratio = i;
+
+		if (debug)
+			std::cout << "Filling with a geometric progression" << std::endl;
+		FillListGeometric(arrayCount, ratio);
+		if (debug)
+			std::cout << "Array filled with: " << arrayCount << ", ratio: " << ratio << ", generating random key to search for" << std::endl;
+
+		//gets a key that exists
+		int key = base[arrayCount /2];
+		if (debug)
+			std::cout << "Key generated: " << key << std::endl;
+
+		int returnedIndex;
+
+		//calls the interpolation search and saves its data to the grapher
+		comparisonCount = 0;
+		returnedIndex = InterpolateSearch(key, 0, arrayCount - 1, false, false);
+		g->TakeSizeValues(ratio, comparisonCount, -1, -1, -1, -1);
+
+		//calls the linear search and saves its data to the grapher
+		comparisonCount = 0;
+		returnedIndex = LinearSearch(key, 0, arrayCount - 1);
+		g->TakeSizeValues(ratio, -1, comparisonCount, -1, -1, -1);
+
+		//calls the exponential search and saves its data to the grapher
+		comparisonCount = 0;
+		returnedIndex = ExponentialSearch(key, 0, arrayCount - 1);
+		g->TakeSizeValues(ratio, -1, -1, comparisonCount, -1, -1);
+
+		//calls the linear interpolation search and saves its data to the grapher
+		comparisonCount = 0;
+		returnedIndex = InterpolationLinearSearch(key, 0, arrayCount - 1);
+		g->TakeSizeValues(ratio, -1, -1, -1, comparisonCount, -1);
+
+		//calls the exponential interpolation search and saves its data to the grapher
+		comparisonCount = 0;
+		returnedIndex = InterpolationExponentialSearch(key, 0, arrayCount - 1);
+		g->TakeSizeValues(ratio, -1, -1, -1, -1, comparisonCount);
+
+	}
+
+	g->DrawGraph(L"Geometric data different ratios (table size 5000)", L"Ratio", "_geometric, different ratios.png", true, true, true, true, true);
+	g->DrawGraph(L"Geometric data different ratios (table size 5000) (Only exponentials)", L"Ratio", "_geometric, different ratios (only exponentials).png", false, true, false, false, true);
+
+	delete g;
+
+	std::cout << "Geometric different ratios done" << std::endl << std::endl;
 }
 
 
@@ -844,7 +974,7 @@ int main() {
 
 		//HybridSearchTest();
 
-		ExtensiveTest();
+		//ExtensiveTest();
 
 		//PerfectAPTest(1000, 3);
 
@@ -852,13 +982,17 @@ int main() {
 
 		//GeometricTest(10000, GetBestRatio(10000));
 
-		//GraphArithmeticRandomKeys(10, 30000, 100, 200, false);
+		//GraphArithmeticRandomKeys(100, 30000, 100, 100, false);
 
 		//GraphArithmeticBestCase(100, 10000, 100, 10, false);
 
-		//GraphGeometricRandomKeys(100, 5000, 10, 1000, false);*/
+		//GraphGeometricRandomKeys(100, 5000, 10, 1000, false);
 
 		//GraphGeometricRandomKeysExponentialsOnly(100, 30000, 50, 500, false);
+
+		//GeometricBestCase(100, 5000, 100, false);
+
+		GeometricRatios(5000, 500, false);
 
 		std::cin >> input;
 		system("cls");

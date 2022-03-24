@@ -38,19 +38,19 @@ public:
 		return interExpoData;
 	}
 
-	void UpdateInterpolation(int x, int y) {
+	void UpdateInterpolation(double x, int y) {
 		UpdateAverage(&interpolationData, x, y);
 	}
-	void UpdateLinear(int x, int y) {
+	void UpdateLinear(double x, int y) {
 		UpdateAverage(&linearData, x, y);
 	}
-	void UpdateExponential(int x, int y) {
+	void UpdateExponential(double x, int y) {
 		UpdateAverage(&expoData, x, y);
 	}
-	void UpdateInterpolationLinear(int x, int y) {
+	void UpdateInterpolationLinear(double x, int y) {
 		UpdateAverage(&interLinearData, x, y);
 	}
-	void UpdateInterpolationExponential(int x, int y) {
+	void UpdateInterpolationExponential(double x, int y) {
 		UpdateAverage(&interExpoData, x, y);
 	}
 
@@ -128,7 +128,7 @@ public:
 		legendY = -10;
 	}
 
-	void DrawGraph(const wchar_t* graphTitle, std::string imageName, bool linear, bool exponential, bool inter, bool interLin, bool interExp) {
+	void DrawGraph(const wchar_t* graphTitle, const wchar_t* xAxisTitle, std::string imageName, bool linear, bool exponential, bool inter, bool interLin, bool interExp) {
 
 		bool success;
 		StringReference* errorMessage = new StringReference();
@@ -141,9 +141,9 @@ public:
 		settings->autoBoundaries = true;
 		settings->autoPadding = true;
 		settings->title = toVector(graphTitle);;
-		settings->xLabel = toVector(L"Table size");
+		settings->xLabel = toVector(xAxisTitle);
 		settings->yLabel = toVector(L"Comparisons");
-
+		
 		//sets up the series for interpolation
 		ScatterPlotSeries* InterpolationSeries = GetDefaultScatterPlotSeriesSettings();
 		Points pInter = PrepareData(data.GetInterpolationData());
@@ -190,8 +190,8 @@ public:
 
 
 		//sets up the series for exponential
-		Points pExpo = PrepareData(data.GetExponentialData());
 		ScatterPlotSeries* ExpoSeries = GetDefaultScatterPlotSeriesSettings();
+		Points pExpo = PrepareData(data.GetExponentialData());
 		ExpoSeries->xs = &pExpo.toDrawX;
 		ExpoSeries->ys = &pExpo.toDrawY;
 		ExpoSeries->linearInterpolation = true;
@@ -232,22 +232,22 @@ public:
 		}
 	}
 
-	void TakeSizeValues(int tableSize, int interpolation, int linear, int expo, int interLinear, int interExpo) {
+	void TakeSizeValues(double xAxis, int interpolation, int linear, int expo, int interLinear, int interExpo) {
 
 		if (interpolation != -1)
-			data.UpdateInterpolation(tableSize, interpolation);
+			data.UpdateInterpolation(xAxis, interpolation);
 
 		if (linear != -1)
-			data.UpdateLinear(tableSize, linear);
+			data.UpdateLinear(xAxis, linear);
 
 		if (expo != -1)
-			data.UpdateExponential(tableSize, expo);
+			data.UpdateExponential(xAxis, expo);
 
 		if (interLinear != -1)
-			data.UpdateInterpolationLinear(tableSize, interLinear);
+			data.UpdateInterpolationLinear(xAxis, interLinear);
 
 		if (interExpo != -1)
-			data.UpdateInterpolationExponential(tableSize, interExpo);
+			data.UpdateInterpolationExponential(xAxis, interExpo);
 	}
 
 	Points PrepareData(std::vector<std::vector<double>> dataToProcess) {
