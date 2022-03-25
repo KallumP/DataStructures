@@ -5,6 +5,7 @@
 #include <algorithm>
 
 #include "Hash.h"
+#include "Grapher.h"
 
 
 
@@ -71,10 +72,13 @@ void DemoPart1() {
 
 	DivisionTest();
 
+
+	std::cout << "Part 1 done" << std::endl;
 	std::string input = "";
 	std::cout << "Enter any value to continue" << std::endl;
 	std::cin >> input;
 	system("cls");
+
 }
 
 
@@ -225,125 +229,263 @@ void DemoPart2() {
 	hasher = new Division(1000);
 	std::cout << "Testing: division avalanche" << std::endl << std::endl;
 	AvalanchePropertyTests(hasher);
-	system("cls");
 
+	std::cout << "Part 2 done" << std::endl;
+	std::string input = "";
+	std::cout << "Enter any value to continue" << std::endl;
+	std::cin >> input;
+	system("cls");
 	delete hasher;
 }
 
 
 
 
-//tests the collisoin property of the given hash
-void CollisisionTest(Hash* hasher, int keyCount) {
+//tests the collision property of the given hash
+void CollisionTest(Hash* hasher, Grapher* g, int keyCount, int digits) {
 
-	//does 5 sequential inserts
-	for (int i = 1; i <= 5; i++) {
-
-		//resets the table for this set of keys
-		hasher->ResetTable();
-
-		//inserts a keyCount anount of values with a gap of i
-		for (int j = 0; j < keyCount * i; j += i) {
-
-			//std::cout << "Inserting key: " << j << " into hashtable" << std::endl;
-
-			//insets this key
-			hasher->Insert(j);
-		}
-
-		//outputs the number of collisions for this set
-		int collisions = hasher->GetCollisions();
-		std::cout << keyCount << " sequential keys inputted with a gap of " << i;
-		std::cout << ". Number of collisions found: " << collisions;
-		std::cout << ". Collision rate = " << 100 * ((double)collisions / keyCount) << "%" << std::endl;
-	}
-
-
-
-	//resets the table for this set of keys
 	hasher->ResetTable();
 
-	srand(time(0));
 
-	//puts random keys into the hash function
-	for (int i = 0; i < keyCount; i++)
+	//inserts a keyCount anount of values with a gap of 1
+	for (int j = 0; j < keyCount * 1; j += 1)
+		hasher->Insert(j);
+	g->TakeSizeValues(digits, 100 * ((double)hasher->GetCollisions() / keyCount), -1, -1, -1, -1);
+	hasher->ResetTable();
 
-		//inserts this random key
-		hasher->Insert(rand() % (hasher->GetTableSize() * 10));
 
-	//outputs the number of collisions for this set
-	int collisions = hasher->GetCollisions();
-	std::cout << keyCount << " random keys inputted";
-	std::cout << ". Number of collisions found: " << collisions;
-	std::cout << ". Collision rate = " << 100 * ((double)collisions / keyCount) << "%" << std::endl << std::endl;
+	//inserts a keyCount anount of values with a gap of 2
+	for (int j = 0; j < keyCount * 2; j += 2)
+		hasher->Insert(j);
+	g->TakeSizeValues(digits, -1, 100 * ((double)hasher->GetCollisions() / keyCount), -1, -1, -1);
+	hasher->ResetTable();
+
+
+	//inserts a keyCount anount of values with a gap of 3
+	for (int j = 0; j < keyCount * 3; j += 3)
+		hasher->Insert(j);
+	g->TakeSizeValues(digits, -1, -1, 100 * ((double)hasher->GetCollisions() / keyCount), -1, -1);
+	hasher->ResetTable();
+
+
+	//inserts a keyCount anount of values with a gap of 4
+	for (int j = 0; j < keyCount * 4; j += 4)
+		hasher->Insert(j);
+	g->TakeSizeValues(digits, -1, -1, -1, 100 * ((double)hasher->GetCollisions() / keyCount), -1);
+	hasher->ResetTable();
+
+
+	//inserts a keyCount anount of values with a gap of 5
+	for (int j = 0; j < keyCount * 5; j += 5)
+		hasher->Insert(j);
+	g->TakeSizeValues(digits, -1, -1, -1, -1, 100 * ((double)hasher->GetCollisions() / keyCount));
+	hasher->ResetTable();
 
 }
 
-//demos part 3 for a specific hash
-void DemoPart3(Hash* hasher) {
 
+//graphs the collision properties of the midsquare hash
+void GraphMidsquare(Grapher* g, int minDigits, int maxDigits) {
+
+	Hash* hasher;
 	float tablePortion;
 
 	tablePortion = 0.1;
-	//tests inputting half the table size capacity of keys
-	std::cout << "Testing: " << hasher->GetHashType() << " collisions on table size : " << hasher->GetTableSize() << " and " << tablePortion << " table size key count" << std::endl;
-	CollisisionTest(hasher, hasher->GetTableSize() * tablePortion);
-
-
-	tablePortion = 0.5;
-	//tests inputting half the table size capacity of keys
-	std::cout << "Testing: " << hasher->GetHashType() << " collisions on table size : " << hasher->GetTableSize() << " and " << tablePortion << " table size key count" << std::endl;
-	CollisisionTest(hasher, hasher->GetTableSize() * tablePortion);
-
-	tablePortion = 1.0;
-	//tests inputting half the table size capacity of keys
-	std::cout << "Testing: " << hasher->GetHashType() << " collisions on table size : " << hasher->GetTableSize() << " and " << tablePortion << " table size key count" << std::endl;
-	CollisisionTest(hasher, hasher->GetTableSize() * tablePortion);
-}
-
-//Demos part 3
-void DemoPart3() {
-
-	Hash* hasher;
-	std::string input = "";
-
-
 	//loops through 4 table digit sizes to test
-	for (int i = 3; i < 6; i++) {
+	for (int i = minDigits; i < maxDigits; i++) {
 
 		hasher = new MidSquare(i);
-
-		DemoPart3(hasher);
+		std::cout << "Graphing midsquare: " << hasher->GetHashType() << " collisions on table size : " << hasher->GetTableSize() << " and " << tablePortion << " table size key count" << std::endl;
+		CollisionTest(hasher, g, hasher->GetTableSize() * tablePortion, i);
 	}
+	g->DrawGraphSequentials(L"Midsquare collision rates (inserting tenth table)", L"Table sizes (digits)", "_midsquare collisions (tenth).png");
+	g = new Grapher();
 
+	tablePortion = 0.5;
+	//loops through 4 table digit sizes to test
+	for (int i = minDigits; i < maxDigits; i++) {
 
-	//pause
-	std::cout << "Enter any value to continue" << std::endl;
-	std::cin >> input;
-	system("cls");
+		hasher = new MidSquare(i);
+		std::cout << "Graphing midsquare: " << hasher->GetHashType() << " collisions on table size : " << hasher->GetTableSize() << " and " << tablePortion << " table size key count" << std::endl;
+		CollisionTest(hasher, g, hasher->GetTableSize() * tablePortion, i);
+	}
+	g->DrawGraphSequentials(L"Midsquare collision rates (inserting half table)", L"Table sizes (digits)", "_midsquare collisions (half).png");
+	g = new Grapher();
 
-	//loops through 4 digits of sizes to test
-	for (int i = 3; i < 6; i++) {
+	tablePortion = 1;
+	//loops through 4 table digit sizes to test
+	for (int i = minDigits; i < maxDigits; i++) {
+
+		hasher = new MidSquare(i);
+		std::cout << "Graphing midsquare: " << hasher->GetHashType() << " collisions on table size : " << hasher->GetTableSize() << " and " << tablePortion << " table size key count" << std::endl;
+		CollisionTest(hasher, g, hasher->GetTableSize() * tablePortion, i);
+	}
+	g->DrawGraphSequentials(L"Midsquare collision rates (inseting full table)", L"Table sizes (digits)", "_midsquare collisions (full).png");
+	g = new Grapher();
+}
+
+//graphs the collision properties of the XOR hash
+void GraphXOR(Grapher* g, int minDigits, int maxDigits) {
+
+	Hash* hasher;
+	float tablePortion;
+
+	tablePortion = 0.1;
+	//loops through 4 table digit sizes to test
+	for (int i = minDigits; i < maxDigits; i++) {
 
 		hasher = new XOR(i);
-
-		DemoPart3(hasher);
+		std::cout << "Graphing xor: " << hasher->GetHashType() << " collisions on table size : " << hasher->GetTableSize() << " and " << tablePortion << " table size key count" << std::endl;
+		CollisionTest(hasher, g, hasher->GetTableSize() * tablePortion, i);
 	}
+	g->DrawGraphSequentials(L"XOR collision rates (inserting tenth table)", L"Table sizes (digits)", "_xor collisions (tenth).png");
+	g = new Grapher();
 
-	//pause
+	tablePortion = 0.5;
+	//loops through 4 table digit sizes to test
+	for (int i = minDigits; i < maxDigits; i++) {
+
+		hasher = new XOR(i);
+		std::cout << "Graphing xor: " << hasher->GetHashType() << " collisions on table size : " << hasher->GetTableSize() << " and " << tablePortion << " table size key count" << std::endl;
+		CollisionTest(hasher, g, hasher->GetTableSize() * tablePortion, i);
+	}
+	g->DrawGraphSequentials(L"XOR collision rates (inserting half table)", L"Table sizes (digits)", "_xor collisions (half).png");
+	g = new Grapher();
+
+	tablePortion = 1;
+	//loops through 4 table digit sizes to test
+	for (int i = minDigits; i < maxDigits; i++) {
+
+		hasher = new XOR(i);
+		std::cout << "Graphing xor: " << hasher->GetHashType() << " collisions on table size : " << hasher->GetTableSize() << " and " << tablePortion << " table size key count" << std::endl;
+		CollisionTest(hasher, g, hasher->GetTableSize() * tablePortion, i);
+	}
+	g->DrawGraphSequentials(L"XOR collision rates (inseting full table)", L"Table sizes (digits)", "_xor collisions (full).png");
+	g = new Grapher();
+}
+
+//graphs the collision properties of the division hash
+void GraphDivision(Grapher* g, int minDigits, int maxDigits) {
+
+	Hash* hasher;
+	float tablePortion;
+
+	tablePortion = 0.1;
+	//loops through 4 table digit sizes to test
+	for (int i = minDigits; i < maxDigits; i++) {
+
+		hasher = new Division(std::pow(10, i));
+		std::cout << "Graphing division: " << hasher->GetHashType() << " collisions on table size : " << hasher->GetTableSize() << " and " << tablePortion << " table size key count" << std::endl;
+		CollisionTest(hasher, g, hasher->GetTableSize() * tablePortion, i);
+	}
+	g->DrawGraphSequentials(L"Division collision rates (inserting tenth table)", L"Table sizes (digits)", "_division collisions (tenth).png");
+	g = new Grapher();
+
+	tablePortion = 0.5;
+	//loops through 4 table digit sizes to test
+	for (int i = minDigits; i < maxDigits; i++) {
+
+		hasher = new Division(std::pow(10, i));
+		std::cout << "Graphing division: " << hasher->GetHashType() << " collisions on table size : " << hasher->GetTableSize() << " and " << tablePortion << " table size key count" << std::endl;
+		CollisionTest(hasher, g, hasher->GetTableSize() * tablePortion, i);
+	}
+	g->DrawGraphSequentials(L"Division collision rates (inserting half table)", L"Table sizes (digits)", "_division collisions (half).png");
+	g = new Grapher();
+
+	tablePortion = 1;
+	//loops through 4 table digit sizes to test
+	for (int i = minDigits; i < maxDigits; i++) {
+
+		hasher = new Division(std::pow(10, i));
+		std::cout << "Graphing division: " << hasher->GetHashType() << " collisions on table size : " << hasher->GetTableSize() << " and " << tablePortion << " table size key count" << std::endl;
+		CollisionTest(hasher, g, hasher->GetTableSize() * tablePortion, i);
+	}
+	g->DrawGraphSequentials(L"Division collision rates (inseting full table)", L"Table sizes (digits)", "_division collisions (full).png");
+
+	g = new Grapher();
+}
+
+
+void GraphRandoms(Grapher* g) {
+
+	std::cout << "Graphing collisions" << std::endl;
+
+	Hash* hasher;
+	srand(time(0));
+
+	int digits = 3;
+
+	g = new Grapher();
+	hasher = new MidSquare(digits);
+	int valueToPut = 0;
+
+	//loops for half the number of spaces in the hashtable
+	for (int i = 0; i < hasher->GetTableSize() / 2; i++)
+		hasher->Insert(valueToPut += rand() % 100);
+
+	int* hashTable = hasher->GetTable();
+	for (int i = 0; i < hasher->GetTableSize(); i++)
+		g->TakeRandom(i, hashTable[i], -1, -1);
+
+	g->DrawGraphRandom(L"Hashtable collision status for midsquare", L"Hashtable index", "_Collision count midsquare.png");
+	hasher->ResetTable();
+
+
+
+	g = new Grapher();
+	hasher = new XOR(digits);
+	valueToPut = 0;
+
+	//loops for half the number of spaces in the hashtable
+	for (int i = 0; i < hasher->GetTableSize() / 2; i++)
+		hasher->Insert(valueToPut += rand() % 100);
+
+	hashTable = hasher->GetTable();
+	for (int i = 0; i < hasher->GetTableSize(); i++)
+		g->TakeRandom(i, hashTable[i], -1, -1);
+
+	g->DrawGraphRandom(L"Hashtable collision status for XOR", L"Hashtable index", "_Collision count xor.png");
+	hasher->ResetTable();
+
+
+
+	g = new Grapher();
+	hasher = new Division(digits);
+	valueToPut = 0;
+
+	//loops for half the number of spaces in the hashtable
+	for (int i = 0; i < hasher->GetTableSize() / 2; i++)
+		hasher->Insert(valueToPut += rand() % 100);
+
+	hashTable = hasher->GetTable();
+	for (int i = 0; i < hasher->GetTableSize(); i++)
+		g->TakeRandom(i, hashTable[i], -1, -1);
+
+	g->DrawGraphRandom(L"Hashtable collision status for division", L"Hashtable index", "_Collision count division.png");
+	hasher->ResetTable();
+}
+
+
+//Demos part 3
+void DemoPart3(int minDigits, int maxDigits) {
+
+	Grapher* g = new Grapher();
+
+	//GraphMidsquare( g, minDigits, maxDigits);
+
+	//GraphXOR( g, minDigits, maxDigits);
+
+	//GraphDivision( g, minDigits, maxDigits);
+
+	GraphRandoms(g);
+
+	delete g;
+
+	std::cout << "Part 3 done" << std::endl;
+	std::string input = "";
 	std::cout << "Enter any value to continue" << std::endl;
 	std::cin >> input;
 	system("cls");
-
-	//loops through power of 10 sizes
-	for (int i = 3; i < 6; i++) {
-
-		hasher = new Division(std::pow(10, i));
-
-		DemoPart3(hasher);
-	}
-
-	delete hasher;
 }
 
 
@@ -355,5 +497,5 @@ int main()
 
 	//DemoPart2();
 
-	DemoPart3();
+	DemoPart3(3, 6);
 }

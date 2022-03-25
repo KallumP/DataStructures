@@ -48,6 +48,10 @@ public:
 		return hashType;
 	}
 
+	int* GetTable() {
+		return hashTable;
+	}
+
 
 
 

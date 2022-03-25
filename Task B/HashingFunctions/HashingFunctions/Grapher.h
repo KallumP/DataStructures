@@ -22,36 +22,42 @@ public:
 	}
 
 
-	std::vector<std::vector<double>> GetInterpolationData() {
-		return interpolationData;
+	std::vector<std::vector<double>> GetGap1() {
+		return gap1Data;
 	}
-	std::vector<std::vector<double>> GetLinearData() {
-		return linearData;
+	std::vector<std::vector<double>> GetGap2() {
+		return gap2Data;
 	}
-	std::vector<std::vector<double>> GetExponentialData() {
-		return expoData;
+	std::vector<std::vector<double>> GetGap3() {
+		return gap3Data;
 	}
-	std::vector<std::vector<double>> GetInterpolationLinearData() {
-		return interLinearData;
+	std::vector<std::vector<double>> GetGap4() {
+		return gap4Data;
 	}
-	std::vector<std::vector<double>> GetInterpolationExponentialData() {
-		return interExpoData;
+	std::vector<std::vector<double>> GetGap5() {
+		return gap5Data;
+	}
+	std::vector<std::vector<double>> GetRandom1() {
+		return random1Data;
 	}
 
-	void UpdateInterpolation(double x, int y) {
-		UpdateAverage(&interpolationData, x, y);
+	void UpdateGap1(double x, int y) {
+		UpdateAverage(&gap1Data, x, y);
 	}
-	void UpdateLinear(double x, int y) {
-		UpdateAverage(&linearData, x, y);
+	void UpdateGap2(double x, int y) {
+		UpdateAverage(&gap2Data, x, y);
 	}
-	void UpdateExponential(double x, int y) {
-		UpdateAverage(&expoData, x, y);
+	void UpdateGap3(double x, int y) {
+		UpdateAverage(&gap3Data, x, y);
 	}
-	void UpdateInterpolationLinear(double x, int y) {
-		UpdateAverage(&interLinearData, x, y);
+	void UpdateGap4(double x, int y) {
+		UpdateAverage(&gap4Data, x, y);
 	}
-	void UpdateInterpolationExponential(double x, int y) {
-		UpdateAverage(&interExpoData, x, y);
+	void UpdateGap5(double x, int y) {
+		UpdateAverage(&gap5Data, x, y);
+	}
+	void UpdateRandom1(double x, int y) {
+		UpdateAverage(&random1Data, x, y);
 	}
 
 	//returns the average of the 
@@ -96,11 +102,12 @@ private:
 	//outer holds data for each different table size
 
 	//inner vector = average comparisons, table size (unique), value count
-	std::vector<std::vector<double>>  interpolationData;
-	std::vector<std::vector<double>>  linearData;
-	std::vector<std::vector<double>>  expoData;
-	std::vector<std::vector<double>>  interLinearData;
-	std::vector<std::vector<double>>  interExpoData;
+	std::vector<std::vector<double>>  gap1Data;
+	std::vector<std::vector<double>>  gap2Data;
+	std::vector<std::vector<double>>  gap3Data;
+	std::vector<std::vector<double>>  gap4Data;
+	std::vector<std::vector<double>>  gap5Data;
+	std::vector<std::vector<double>>  random1Data;
 
 };
 
@@ -118,17 +125,22 @@ public:
 		graphWidth = 1500;
 		graphHeight = 1000;
 
-		interpolationColor = CreateRGBColor(1, 0, 0);
-		interpolationLinearColor = CreateRGBColor(0, 1, 0);
-		interpolationExponentialColor = CreateRGBColor(0, 0, 1);
-		linearColor = CreateRGBColor(0, 1, 1);
-		exponentialColor = CreateRGBColor(1, 0, 1);
+		gap1 = CreateRGBColor(1, 0, 0);
+		gap2 = CreateRGBColor(0, 1, 0);
+		gap3 = CreateRGBColor(0, 0, 1);
+		gap4 = CreateRGBColor(0, 1, 1);
+		gap5 = CreateRGBColor(1, 0, 1);
+
+
+		rand1 = CreateRGBColor(1, 0, 0);
+		rand2 = CreateRGBColor(0, 1, 0);
+		rand3 = CreateRGBColor(0, 0, 1);
 
 		legendX = 250;
 		legendY = -10;
 	}
 
-	void DrawGraph(const wchar_t* graphTitle, const wchar_t* xAxisTitle, std::string imageName, bool linear, bool exponential, bool inter, bool interLin, bool interExp) {
+	void DrawGraphSequentials(const wchar_t* graphTitle, const wchar_t* xAxisTitle, std::string imageName) {
 
 		bool success;
 		StringReference* errorMessage = new StringReference();
@@ -142,63 +154,57 @@ public:
 		settings->autoPadding = true;
 		settings->title = toVector(graphTitle);;
 		settings->xLabel = toVector(xAxisTitle);
-		settings->yLabel = toVector(L"Comparisons");
-		
-		//sets up the series for interpolation
-		ScatterPlotSeries* InterpolationSeries = GetDefaultScatterPlotSeriesSettings();
-		Points pInter = PrepareData(data.GetInterpolationData());
-		InterpolationSeries->xs = &pInter.toDrawX;
-		InterpolationSeries->ys = &pInter.toDrawY;
-		InterpolationSeries->linearInterpolation = true;
-		InterpolationSeries->lineType = toVector(L"solid");
-		InterpolationSeries->color = interpolationColor;
-		if (inter)
-			settings->scatterPlotSeries->push_back(InterpolationSeries);
+		settings->yLabel = toVector(L"Collision rate (%)");
 
-		//sets up the series for inter linear
-		ScatterPlotSeries* InterLinearSeries = GetDefaultScatterPlotSeriesSettings();
-		Points pInterLin = PrepareData(data.GetInterpolationLinearData());
-		InterLinearSeries->xs = &pInterLin.toDrawX;
-		InterLinearSeries->ys = &pInterLin.toDrawY;
-		InterLinearSeries->linearInterpolation = true;
-		InterLinearSeries->lineType = toVector(L"solid");
-		InterLinearSeries->color = interpolationLinearColor;
-		if (interLin)
-			settings->scatterPlotSeries->push_back(InterLinearSeries);
+		//sets up the series for gap 1
+		ScatterPlotSeries* gap1Series = GetDefaultScatterPlotSeriesSettings();
+		Points pGap1 = PrepareData(data.GetGap1());
+		gap1Series->xs = &pGap1.toDrawX;
+		gap1Series->ys = &pGap1.toDrawY;
+		gap1Series->linearInterpolation = true;
+		gap1Series->lineType = toVector(L"solid");
+		gap1Series->color = gap1;
+		settings->scatterPlotSeries->push_back(gap1Series);
 
-		//sets up the data for inter expo
-		ScatterPlotSeries* InterExpoSeries = GetDefaultScatterPlotSeriesSettings();
-		Points pInterExpo = PrepareData(data.GetInterpolationExponentialData());
-		InterExpoSeries->xs = &pInterExpo.toDrawX;
-		InterExpoSeries->ys = &pInterExpo.toDrawY;
-		InterExpoSeries->linearInterpolation = true;
-		InterExpoSeries->lineType = toVector(L"solid");
-		InterExpoSeries->color = interpolationExponentialColor;
-		if (interExp)
-			settings->scatterPlotSeries->push_back(InterExpoSeries);
+		//sets up the series for gap 2
+		ScatterPlotSeries* gap2Series = GetDefaultScatterPlotSeriesSettings();
+		Points pGap2 = PrepareData(data.GetGap2());
+		gap2Series->xs = &pGap2.toDrawX;
+		gap2Series->ys = &pGap2.toDrawY;
+		gap2Series->linearInterpolation = true;
+		gap2Series->lineType = toVector(L"solid");
+		gap2Series->color = gap2;
+		settings->scatterPlotSeries->push_back(gap2Series);
 
-		//sets up the series for linear
-		ScatterPlotSeries* LinearSeries = GetDefaultScatterPlotSeriesSettings();
-		Points pLinear = PrepareData(data.GetLinearData());
-		LinearSeries->xs = &pLinear.toDrawX;
-		LinearSeries->ys = &pLinear.toDrawY;
-		LinearSeries->linearInterpolation = true;
-		LinearSeries->lineType = toVector(L"solid");
-		LinearSeries->color = linearColor;
-		if (linear)
-			settings->scatterPlotSeries->push_back(LinearSeries);
+		//sets up the data for gap 3
+		ScatterPlotSeries* gap3Series = GetDefaultScatterPlotSeriesSettings();
+		Points pGap3 = PrepareData(data.GetGap3());
+		gap3Series->xs = &pGap3.toDrawX;
+		gap3Series->ys = &pGap3.toDrawY;
+		gap3Series->linearInterpolation = true;
+		gap3Series->lineType = toVector(L"solid");
+		gap3Series->color = gap3;
+		settings->scatterPlotSeries->push_back(gap3Series);
 
+		//sets up the series for gap 4
+		ScatterPlotSeries* gap4Series = GetDefaultScatterPlotSeriesSettings();
+		Points pGap4 = PrepareData(data.GetGap4());
+		gap4Series->xs = &pGap4.toDrawX;
+		gap4Series->ys = &pGap4.toDrawY;
+		gap4Series->linearInterpolation = true;
+		gap4Series->lineType = toVector(L"solid");
+		gap4Series->color = gap4;
+		settings->scatterPlotSeries->push_back(gap4Series);
 
-		//sets up the series for exponential
-		ScatterPlotSeries* ExpoSeries = GetDefaultScatterPlotSeriesSettings();
-		Points pExpo = PrepareData(data.GetExponentialData());
-		ExpoSeries->xs = &pExpo.toDrawX;
-		ExpoSeries->ys = &pExpo.toDrawY;
-		ExpoSeries->linearInterpolation = true;
-		ExpoSeries->lineType = toVector(L"solid");
-		ExpoSeries->color = exponentialColor;
-		if (exponential)
-			settings->scatterPlotSeries->push_back(ExpoSeries);
+		//sets up the series for gap 5
+		ScatterPlotSeries* gap5Series = GetDefaultScatterPlotSeriesSettings();
+		Points pGap5 = PrepareData(data.GetGap5());
+		gap5Series->xs = &pGap5.toDrawX;
+		gap5Series->ys = &pGap5.toDrawY;
+		gap5Series->linearInterpolation = true;
+		gap5Series->lineType = toVector(L"solid");
+		gap5Series->color = gap5;
+		settings->scatterPlotSeries->push_back(gap5Series);
 
 
 		//draws all the graph series
@@ -207,16 +213,11 @@ public:
 		legendY = -10;
 
 		//draws the legend
-		if (inter)
-			DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Interpolation"), interpolationColor);
-		if (interLin)
-			DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Interpolation Linear"), interpolationLinearColor);
-		if (interExp)
-			DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Interpolation Exponential"), interpolationExponentialColor);
-		if (linear)
-			DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Linear"), linearColor);
-		if (exponential)
-			DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Exponential"), exponentialColor);
+		DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Sequential w/ gap of 1"), gap1);
+		DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Sequential w/ gap of 2"), gap2);
+		DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Sequential w/ gap of 3"), gap3);
+		DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Sequential w/ gap of 4"), gap4);
+		DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Sequential w/ gap of 5"), gap5);
 
 		//saves the graph to an image
 		if (success) {
@@ -232,22 +233,85 @@ public:
 		}
 	}
 
-	void TakeSizeValues(double xAxis, int interpolation, int linear, int expo, int interLinear, int interExpo) {
 
-		if (interpolation != -1)
-			data.UpdateInterpolation(xAxis, interpolation);
+	void DrawGraphRandom(const wchar_t* graphTitle, const wchar_t* xAxisTitle, std::string imageName) {
 
-		if (linear != -1)
-			data.UpdateLinear(xAxis, linear);
+		bool success;
+		StringReference* errorMessage = new StringReference();
+		RGBABitmapImageReference* imageReference = CreateRGBABitmapImageReference();
 
-		if (expo != -1)
-			data.UpdateExponential(xAxis, expo);
+		//sets up the graph
+		ScatterPlotSettings* settings = GetDefaultScatterPlotSettings();
+		settings->width = graphWidth;
+		settings->height = graphHeight;
+		settings->autoBoundaries = true;
+		settings->autoPadding = true;
+		settings->title = toVector(graphTitle);;
+		settings->xLabel = toVector(xAxisTitle);
+		settings->yLabel = toVector(L"Collisions");
 
-		if (interLinear != -1)
-			data.UpdateInterpolationLinear(xAxis, interLinear);
+		//sets up the series for random
+		ScatterPlotSeries* randomSeries = GetDefaultScatterPlotSeriesSettings();
+		Points pRand = PrepareData(data.GetRandom1());
+		randomSeries->xs = &pRand.toDrawX;
+		randomSeries->ys = &pRand.toDrawY;
+		randomSeries->linearInterpolation = false;
+		randomSeries->pointType = toVector(L"dots");
+		randomSeries->color = rand1;
+		settings->scatterPlotSeries->push_back(randomSeries);
 
-		if (interExpo != -1)
-			data.UpdateInterpolationExponential(xAxis, interExpo);
+
+		//draws all the graph series
+		success = DrawScatterPlotFromSettings(imageReference, settings, errorMessage);
+
+		legendY = -10;
+
+		//draws the legend
+		//DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Random table size 999"), rand1);
+		//DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Random table size 9999"), rand2);
+		//DrawText(imageReference->image, legendX, legendY += 20, toVector(L"Random table size 99999"), rand3);
+
+
+
+		//saves the graph to an image
+		if (success) {
+			std::vector<double>* pngdata = ConvertToPNG(imageReference->image);
+			WriteToFile(pngdata, imageName);
+			DeleteImage(imageReference->image);
+		} else {
+			std::cerr << "Error: ";
+			for (wchar_t c : *errorMessage->string) {
+				std::wcerr << c;
+			}
+			std::cerr << std::endl;
+
+		}
+	}
+
+	void TakeSizeValues(double xAxis, int g1, int g2, int g3, int g4, int g5) {
+
+		if (g1 != -1)
+			data.UpdateGap1(xAxis, g1);
+
+		if (g2 != -1)
+			data.UpdateGap2(xAxis, g2);
+
+		if (g3 != -1)
+			data.UpdateGap3(xAxis, g3);
+
+		if (g4 != -1)
+			data.UpdateGap4(xAxis, g4);
+
+		if (g5 != -1)
+			data.UpdateGap5(xAxis, g5);
+
+	}
+
+	void TakeRandom(double xAxis, int r1, int r2, int r3) {
+
+		if (r1 != -1)
+
+			data.UpdateRandom1(xAxis, r1);
 	}
 
 	Points PrepareData(std::vector<std::vector<double>> dataToProcess) {
@@ -277,10 +341,15 @@ private:
 	int legendY;
 
 
-	RGBA* interpolationColor;
-	RGBA* interpolationLinearColor;
-	RGBA* interpolationExponentialColor;
-	RGBA* linearColor;
-	RGBA* exponentialColor;
+	RGBA* gap1;
+	RGBA* gap2;
+	RGBA* gap3;
+	RGBA* gap4;
+	RGBA* gap5;
+
+	RGBA* rand1;
+	RGBA* rand2;
+	RGBA* rand3;
+
 };
 
