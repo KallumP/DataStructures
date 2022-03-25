@@ -140,9 +140,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="HashingFunctions.cpp" />
+    <ClCompile Include="pbPlots.cpp" />
+    <ClCompile Include="supportLib.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Grapher.h" />
     <ClInclude Include="Hash.h" />
+    <ClInclude Include="pbPlots.hpp" />
+    <ClInclude Include="supportLib.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
