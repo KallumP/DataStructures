@@ -434,7 +434,7 @@ void GraphRandoms(Grapher* g) {
 	for (int i = 0; i < hasher->GetTableSize(); i++)
 		g->TakeRandom(i, hashTable[i], -1, -1);
 
-	g->DrawGraphRandom(L"Hashtable collision status for midsquare", L"Hashtable index", "_Collision count midsquare.png");
+	g->DrawGraphRandom(L"Hashtable collision status for midsquare (3 digits, tenth input size)", L"Hashtable index", "_Collision count midsquare.png");
 	hasher->ResetTable();
 
 
@@ -451,7 +451,7 @@ void GraphRandoms(Grapher* g) {
 	for (int i = 0; i < hasher->GetTableSize(); i++)
 		g->TakeRandom(i, hashTable[i], -1, -1);
 
-	g->DrawGraphRandom(L"Hashtable collision status for XOR", L"Hashtable index", "_Collision count xor.png");
+	g->DrawGraphRandom(L"Hashtable collision status for XOR (3 digits, tenth input size)", L"Hashtable index", "_Collision count xor.png");
 	hasher->ResetTable();
 
 
@@ -468,7 +468,7 @@ void GraphRandoms(Grapher* g) {
 	for (int i = 0; i < hasher->GetTableSize(); i++)
 		g->TakeRandom(i, hashTable[i], -1, -1);
 
-	g->DrawGraphRandom(L"Hashtable collision status for division", L"Hashtable index", "_Collision count division.png");
+	g->DrawGraphRandom(L"Hashtable collision status for division (3 digits, tenth input size)", L"Hashtable index", "_Collision count division.png");
 	hasher->ResetTable();
 }
 
@@ -478,11 +478,11 @@ void DemoPart3(int minDigits, int maxDigits) {
 
 	Grapher* g = new Grapher();
 
-	GraphMidsquare( g, minDigits, maxDigits);
+	//GraphMidsquare( g, minDigits, maxDigits);
 
-	GraphXOR( g, minDigits, maxDigits);
+	//GraphXOR( g, minDigits, maxDigits);
 
-	GraphDivision( g, minDigits, maxDigits);
+	//GraphDivision( g, minDigits, maxDigits);
 
 	GraphRandoms(g);
 
