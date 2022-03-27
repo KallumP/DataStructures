@@ -43,8 +43,11 @@ void XORTest() {
 	OutputAddress(hasher, 81223);
 
 	std::cout << std::endl << "Test special keys for the XOR hash" << std::endl;
-	//tests keys that are smaller than 3 digits
-	for (int i = 0; i < 100; i++)
+	//tests some keys that are smaller than 3 digits
+	for (int i = 0; i < 20; i++)
+		OutputAddress(hasher, i);
+	
+	for (int i = 80; i < 100; i++)
 		OutputAddress(hasher, i);
 }
 
@@ -205,7 +208,7 @@ void AvalanchePropertyTests(Hash* hasher) {
 		RandomHashesAvalanche(hasher, 100000);
 
 		//repeat
-		std::cout << "Enter any value to repeat random keys or 'x' to stop" << std::endl;
+		std::cout << "Enter any value to repeat random keys or 'x' to continue" << std::endl;
 		std::cin >> input;
 		system("cls");
 	} while (input != "x");
@@ -290,6 +293,7 @@ void GraphMidsquare(Grapher* g, int minDigits, int maxDigits) {
 	Hash* hasher;
 	float tablePortion;
 
+	g = new Grapher();
 	tablePortion = 0.1;
 	//loops through 4 table digit sizes to test
 	for (int i = minDigits; i < maxDigits; i++) {
@@ -330,6 +334,7 @@ void GraphXOR(Grapher* g, int minDigits, int maxDigits) {
 	Hash* hasher;
 	float tablePortion;
 
+	g = new Grapher();
 	tablePortion = 0.1;
 	//loops through 4 table digit sizes to test
 	for (int i = minDigits; i < maxDigits; i++) {
@@ -370,6 +375,7 @@ void GraphDivision(Grapher* g, int minDigits, int maxDigits) {
 	Hash* hasher;
 	float tablePortion;
 
+	g = new Grapher();
 	tablePortion = 0.1;
 	//loops through 4 table digit sizes to test
 	for (int i = minDigits; i < maxDigits; i++) {
@@ -414,14 +420,15 @@ void GraphRandoms(Grapher* g) {
 	srand(time(0));
 
 	int digits = 3;
+	int fractionOfTable = 10;
 
 	g = new Grapher();
 	hasher = new MidSquare(digits);
 	int valueToPut = 0;
 
 	//loops for half the number of spaces in the hashtable
-	for (int i = 0; i < hasher->GetTableSize() / 2; i++)
-		hasher->Insert(valueToPut += rand() % 100);
+	for (int i = 0; i < hasher->GetTableSize() / fractionOfTable; i++)
+		hasher->Insert(valueToPut += rand() % hasher->GetTableSize());
 
 	int* hashTable = hasher->GetTable();
 	for (int i = 0; i < hasher->GetTableSize(); i++)
@@ -437,8 +444,8 @@ void GraphRandoms(Grapher* g) {
 	valueToPut = 0;
 
 	//loops for half the number of spaces in the hashtable
-	for (int i = 0; i < hasher->GetTableSize() / 2; i++)
-		hasher->Insert(valueToPut += rand() % 100);
+	for (int i = 0; i < hasher->GetTableSize() / fractionOfTable; i++)
+		hasher->Insert(valueToPut += rand() % hasher->GetTableSize());
 
 	hashTable = hasher->GetTable();
 	for (int i = 0; i < hasher->GetTableSize(); i++)
@@ -454,8 +461,8 @@ void GraphRandoms(Grapher* g) {
 	valueToPut = 0;
 
 	//loops for half the number of spaces in the hashtable
-	for (int i = 0; i < hasher->GetTableSize() / 2; i++)
-		hasher->Insert(valueToPut += rand() % 100);
+	for (int i = 0; i < hasher->GetTableSize() / fractionOfTable; i++)
+		hasher->Insert(valueToPut += rand() % hasher->GetTableSize());
 
 	hashTable = hasher->GetTable();
 	for (int i = 0; i < hasher->GetTableSize(); i++)
@@ -471,11 +478,11 @@ void DemoPart3(int minDigits, int maxDigits) {
 
 	Grapher* g = new Grapher();
 
-	//GraphMidsquare( g, minDigits, maxDigits);
+	GraphMidsquare( g, minDigits, maxDigits);
 
-	//GraphXOR( g, minDigits, maxDigits);
+	GraphXOR( g, minDigits, maxDigits);
 
-	//GraphDivision( g, minDigits, maxDigits);
+	GraphDivision( g, minDigits, maxDigits);
 
 	GraphRandoms(g);
 
