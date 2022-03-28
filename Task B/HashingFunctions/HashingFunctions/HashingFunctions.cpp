@@ -496,13 +496,72 @@ void DemoPart3(int minDigits, int maxDigits) {
 }
 
 
-
-
-double ChiSquared(Hash* hasher) {
+double ChiSquaredGeo(Hash* hasher, double expected, std::string type) {
 
 	int keyCount = hasher->GetTableSize() / 5;
 	std::vector<double> values;
-	double expected = 0.20;
+
+	//inserts geometric numbers
+	//loops per ratio to use
+	for (double i = 1.004; i < 1.009; i += 0.001) {
+
+		//geometrically inserts values
+		for (int j = 2000; j < 2000 + keyCount; j++)
+			hasher->Insert(std::pow(i, j - 1));
+		values.push_back(100 * (double)hasher->GetCollisions() / keyCount);
+
+		Grapher* g = new Grapher();
+		int* hashTable = hasher->GetTable();
+		for (int i = 0; i < hasher->GetTableSize(); i++)
+			g->TakeRandom(i, hashTable[i], -1, -1);
+		g->DrawGraphRandom(L"Hashtable collision", L"Hashtable index", "_Hashtable " + type + " " + std::to_string(i) + ".png");
+
+		hasher->ResetTable();
+	}
+
+	//loops through each value and gets the squared summation
+	double xSquared = 0;
+	for (int i = 0; i < values.size(); i++) {
+
+		xSquared += std::pow(values[i] - expected, 2) - expected;
+		//std::cout << type << " collisoion rate in set: " << i << " = " << values[i] << "%" << std::endl;
+	}
+
+	return xSquared;
+}
+
+double ChiSquaredSequential(Hash* hasher, double expected, std::string type) {
+
+	int keyCount = hasher->GetTableSize() / 5;
+	std::vector<double> values;
+
+	//inserts sequential numbers
+	//loop per sequential gap
+	for (int i = 1; i <= 7; i++) {
+
+		//sequentially inserts values
+		for (int j = 0; j < keyCount; j += i)
+			hasher->Insert(j);
+
+		values.push_back(100 * (double)hasher->GetCollisions() / keyCount);
+		hasher->ResetTable();
+	}
+
+	//loops through each value and gets the squared summation
+	double xSquared = 0;
+	for (int i = 0; i < values.size(); i++) {
+
+		xSquared += std::pow(values[i] - expected, 2) - expected;
+		//std::cout << type << " collision rate in set: " << i << " = " << values[i] << "%" << std::endl;
+	}
+
+	return xSquared;
+}
+
+double ChiSquared(Hash* hasher, double expected, std::string type) {
+
+	int keyCount = hasher->GetTableSize() / 5;
+	std::vector<double> values;
 
 	//inserts sequential numbers
 	//loop per sequential gap
@@ -512,7 +571,8 @@ double ChiSquared(Hash* hasher) {
 		for (int j = 0; j < keyCount; j += i)
 			hasher->Insert(j);
 
-		values.push_back((double)hasher->GetCollisions() / keyCount);
+		values.push_back(100 * (double)hasher->GetCollisions() / keyCount);
+		hasher->ResetTable();
 	}
 
 	//inserts random numbers
@@ -520,22 +580,28 @@ double ChiSquared(Hash* hasher) {
 	int valueToAdd = 0;
 	for (int i = 0; i < keyCount; i++)
 		hasher->Insert(valueToAdd += std::rand() % 1000);
-	values.push_back((double)hasher->GetCollisions() / keyCount);
+	values.push_back(100 * (double)hasher->GetCollisions() / keyCount);
+	hasher->ResetTable();
 
 	//inserts geometric numbers
 	//loops per ratio to use
-	for (double i = 1.001; i <= 1.003; i += 0.001) {
+	for (double i = 1.005; i < 1.008; i += 0.001) {
 
 		//geometrically inserts values
-		for (int j = 1; j < keyCount; j++)
+		for (int j = 2000; j < 2000 + keyCount; j++)
 			hasher->Insert(std::pow(i, j - 1));
-		values.push_back((double)hasher->GetCollisions() / keyCount);
+		values.push_back(100 * (double)hasher->GetCollisions() / keyCount);
+		hasher->ResetTable();
 	}
 
 	//loops through each value and gets the squared summation
 	double xSquared = 0;
-	for (int i = 0; i < values.size(); i++)
-		xSquared += std::pow(2, values[i] - expected) - expected;
+	for (int i = 0; i < values.size(); i++) {
+
+		xSquared += std::pow(values[i] - expected, 2) - expected;
+		//std::cout << type << " collisoion rate in set: " << i << " = " << values[i] << "%" << std::endl;
+	}
+
 	return xSquared;
 }
 
@@ -544,15 +610,37 @@ void DemoPart4() {
 
 	Hash* hasher;
 
-	hasher = new MidSquare(4);
-	std::cout << "X squared for midsquare = " << ChiSquared(hasher) << std::endl;
-	hasher = new XOR(4);
-	std::cout << "X squared for XOR = " << ChiSquared(hasher) << std::endl;
-	hasher = new Division(10000);
-	std::cout << "X squared for division = " << ChiSquared(hasher) << std::endl;
+	int expected = 1;
+
+
+	hasher = new MidSquare(3);
+	std::cout << "X squared for midsquare general = " << ChiSquared(hasher, expected, "mid") << std::endl << std::endl;
+	hasher = new XOR(3);
+	std::cout << "X squared for XOR general = " << ChiSquared(hasher, expected, "xor") << std::endl << std::endl;
+	hasher = new Division(1000);
+	std::cout << "X squared for division general = " << ChiSquared(hasher, expected, "division") << std::endl << std::endl;
+	std::cout << std::endl;
+
+
+	hasher = new MidSquare(3);
+	std::cout << "X squared for midsquare sequential = " << ChiSquaredSequential(hasher, expected, "mid") << std::endl << std::endl;
+	hasher = new XOR(3);
+	std::cout << "X squared for XOR sequential= " << ChiSquaredSequential(hasher, expected, "xor") << std::endl << std::endl;
+	hasher = new Division(1000);
+	std::cout << "X squared for division sequential= " << ChiSquaredSequential(hasher, expected, "division") << std::endl << std::endl;
+	std::cout << std::endl;
+
+
+	hasher = new MidSquare(3);
+	std::cout << "X squared for midsquare geometric = " << ChiSquaredGeo(hasher, expected, "mid") << std::endl << std::endl;
+	hasher = new XOR(3);
+	std::cout << "X squared for XOR geometric= " << ChiSquaredGeo(hasher, expected, "xor") << std::endl << std::endl;
+	hasher = new Division(1000);
+	std::cout << "X squared for division geometric= " << ChiSquaredGeo(hasher, expected, "division") << std::endl << std::endl;
+	std::cout << std::endl;
 
 	std::cout << std::endl << std::endl;
-	std::cout << "Part 3 done" << std::endl;
+	std::cout << "Part 4 done" << std::endl;
 	std::string input = "";
 	std::cout << "Enter any value to continue" << std::endl;
 	std::cin >> input;
