@@ -46,7 +46,7 @@ void XORTest() {
 	//tests some keys that are smaller than 3 digits
 	for (int i = 0; i < 20; i++)
 		OutputAddress(hasher, i);
-	
+
 	for (int i = 80; i < 100; i++)
 		OutputAddress(hasher, i);
 }
@@ -251,36 +251,36 @@ void CollisionTest(Hash* hasher, Grapher* g, int keyCount, int digits) {
 
 
 	//inserts a keyCount anount of values with a gap of 1
-	for (int j = 0; j < keyCount * 1; j += 1)
-		hasher->Insert(j);
+	for (int i = 0; i < keyCount * 1; i += 1)
+		hasher->Insert(i);
 	g->TakeSizeValues(digits, 100 * ((double)hasher->GetCollisions() / keyCount), -1, -1, -1, -1);
 	hasher->ResetTable();
 
 
 	//inserts a keyCount anount of values with a gap of 2
-	for (int j = 0; j < keyCount * 2; j += 2)
-		hasher->Insert(j);
+	for (int i = 0; i < keyCount * 2; i += 2)
+		hasher->Insert(i);
 	g->TakeSizeValues(digits, -1, 100 * ((double)hasher->GetCollisions() / keyCount), -1, -1, -1);
 	hasher->ResetTable();
 
 
 	//inserts a keyCount anount of values with a gap of 3
-	for (int j = 0; j < keyCount * 3; j += 3)
-		hasher->Insert(j);
+	for (int i = 0; i < keyCount * 3; i += 3)
+		hasher->Insert(i);
 	g->TakeSizeValues(digits, -1, -1, 100 * ((double)hasher->GetCollisions() / keyCount), -1, -1);
 	hasher->ResetTable();
 
 
 	//inserts a keyCount anount of values with a gap of 4
-	for (int j = 0; j < keyCount * 4; j += 4)
-		hasher->Insert(j);
+	for (int i = 0; i < keyCount * 4; i += 4)
+		hasher->Insert(i);
 	g->TakeSizeValues(digits, -1, -1, -1, 100 * ((double)hasher->GetCollisions() / keyCount), -1);
 	hasher->ResetTable();
 
 
 	//inserts a keyCount anount of values with a gap of 5
-	for (int j = 0; j < keyCount * 5; j += 5)
-		hasher->Insert(j);
+	for (int i = 0; i < keyCount * 5; i += 5)
+		hasher->Insert(i);
 	g->TakeSizeValues(digits, -1, -1, -1, -1, 100 * ((double)hasher->GetCollisions() / keyCount));
 	hasher->ResetTable();
 
@@ -411,7 +411,7 @@ void GraphDivision(Grapher* g, int minDigits, int maxDigits) {
 	g = new Grapher();
 }
 
-
+//graphs the hash table after random numbers are input
 void GraphRandoms(Grapher* g) {
 
 	std::cout << "Graphing collisions" << std::endl;
@@ -420,7 +420,7 @@ void GraphRandoms(Grapher* g) {
 	srand(time(0));
 
 	int digits = 3;
-	int fractionOfTable = 10;
+	int fractionOfTable = 2;
 
 	g = new Grapher();
 	hasher = new MidSquare(digits);
@@ -434,7 +434,7 @@ void GraphRandoms(Grapher* g) {
 	for (int i = 0; i < hasher->GetTableSize(); i++)
 		g->TakeRandom(i, hashTable[i], -1, -1);
 
-	g->DrawGraphRandom(L"Hashtable collision status for midsquare (3 digits, tenth input size)", L"Hashtable index", "_Collision count midsquare.png");
+	g->DrawGraphRandom(L"Hashtable collision status for midsquare (3 digits, half input size)", L"Hashtable index", "_Collision count midsquare.png");
 	hasher->ResetTable();
 
 
@@ -451,13 +451,13 @@ void GraphRandoms(Grapher* g) {
 	for (int i = 0; i < hasher->GetTableSize(); i++)
 		g->TakeRandom(i, hashTable[i], -1, -1);
 
-	g->DrawGraphRandom(L"Hashtable collision status for XOR (3 digits, tenth input size)", L"Hashtable index", "_Collision count xor.png");
+	g->DrawGraphRandom(L"Hashtable collision status for XOR (3 digits, half input size)", L"Hashtable index", "_Collision count xor.png");
 	hasher->ResetTable();
 
 
 
 	g = new Grapher();
-	hasher = new Division(digits);
+	hasher = new Division(std::pow(10, digits));
 	valueToPut = 0;
 
 	//loops for half the number of spaces in the hashtable
@@ -468,7 +468,7 @@ void GraphRandoms(Grapher* g) {
 	for (int i = 0; i < hasher->GetTableSize(); i++)
 		g->TakeRandom(i, hashTable[i], -1, -1);
 
-	g->DrawGraphRandom(L"Hashtable collision status for division (3 digits, tenth input size)", L"Hashtable index", "_Collision count division.png");
+	g->DrawGraphRandom(L"Hashtable collision status for division (3 digits, half input size)", L"Hashtable index", "_Collision count division.png");
 	hasher->ResetTable();
 }
 
@@ -478,11 +478,11 @@ void DemoPart3(int minDigits, int maxDigits) {
 
 	Grapher* g = new Grapher();
 
-	//GraphMidsquare( g, minDigits, maxDigits);
+	GraphMidsquare(g, minDigits, maxDigits);
 
-	//GraphXOR( g, minDigits, maxDigits);
+	GraphXOR(g, minDigits, maxDigits);
 
-	//GraphDivision( g, minDigits, maxDigits);
+	GraphDivision(g, minDigits, maxDigits);
 
 	GraphRandoms(g);
 
@@ -498,11 +498,77 @@ void DemoPart3(int minDigits, int maxDigits) {
 
 
 
+double ChiSquared(Hash* hasher) {
+
+	int keyCount = hasher->GetTableSize() / 5;
+	std::vector<double> values;
+	double expected = 0.20;
+
+	//inserts sequential numbers
+	//loop per sequential gap
+	for (int i = 1; i <= 3; i++) {
+
+		//sequentially inserts values
+		for (int j = 0; j < keyCount; j += i)
+			hasher->Insert(j);
+
+		values.push_back((double)hasher->GetCollisions() / keyCount);
+	}
+
+	//inserts random numbers
+	srand(time(0));
+	int valueToAdd = 0;
+	for (int i = 0; i < keyCount; i++)
+		hasher->Insert(valueToAdd += std::rand() % 1000);
+	values.push_back((double)hasher->GetCollisions() / keyCount);
+
+	//inserts geometric numbers
+	//loops per ratio to use
+	for (double i = 1.001; i <= 1.003; i += 0.001) {
+
+		//geometrically inserts values
+		for (int j = 1; j < keyCount; j++)
+			hasher->Insert(std::pow(i, j - 1));
+		values.push_back((double)hasher->GetCollisions() / keyCount);
+	}
+
+	//loops through each value and gets the squared summation
+	double xSquared = 0;
+	for (int i = 0; i < values.size(); i++)
+		xSquared += std::pow(2, values[i] - expected) - expected;
+	return xSquared;
+}
+
+
+void DemoPart4() {
+
+	Hash* hasher;
+
+	hasher = new MidSquare(4);
+	std::cout << "X squared for midsquare = " << ChiSquared(hasher) << std::endl;
+	hasher = new XOR(4);
+	std::cout << "X squared for XOR = " << ChiSquared(hasher) << std::endl;
+	hasher = new Division(10000);
+	std::cout << "X squared for division = " << ChiSquared(hasher) << std::endl;
+
+	std::cout << std::endl << std::endl;
+	std::cout << "Part 3 done" << std::endl;
+	std::string input = "";
+	std::cout << "Enter any value to continue" << std::endl;
+	std::cin >> input;
+	system("cls");
+}
+
+
+
 int main()
 {
 	//DemoPart1();
 
 	//DemoPart2();
 
-	DemoPart3(3, 6);
+	//DemoPart3(3, 6);
+
+	DemoPart4();
+
 }
