@@ -248,7 +248,7 @@ public:
 		settings->autoPadding = true;
 		settings->title = toVector(graphTitle);;
 		settings->xLabel = toVector(xAxisTitle);
-		settings->yLabel = toVector(L"Collisions");
+		settings->yLabel = toVector(L"Insertions");
 
 		//sets up the series for random
 		ScatterPlotSeries* randomSeries = GetDefaultScatterPlotSeriesSettings();

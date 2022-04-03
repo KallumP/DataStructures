@@ -592,7 +592,7 @@ void GraphArithmeticRandomKeys(int minArray, int maxArray, int arrayStep, int se
 	for (int i = minArray; i <= maxArray; i += arrayStep) {
 
 		int arrayCount = i;
-		std::cout << "Progress: " << i << "/" << maxArray << std::endl;
+		//std::cout << "Progress: " << i << "/" << maxArray << std::endl;
 
 		if (debug)
 			std::cout << "Filling with a arithmetic progression" << std::endl;
@@ -658,7 +658,7 @@ void GraphArithmeticBestCase(int minArray, int maxArray, int arrayStep, int sear
 	for (int i = minArray; i <= maxArray; i += arrayStep) {
 
 		int arrayCount = i;
-		std::cout << "Progress: " << i << "/" << maxArray << std::endl;
+		//std::cout << "Progress: " << i << "/" << maxArray << std::endl;
 
 		if (debug)
 			std::cout << "Filling with a arithmetic progression" << std::endl;
@@ -710,7 +710,7 @@ void GraphArithmeticBestCase(int minArray, int maxArray, int arrayStep, int sear
 
 	delete g;
 
-	std::cout << "Arithmetic random done" << std::endl << std::endl;
+	std::cout << "Arithmetic perfect done" << std::endl << std::endl;
 }
 
 //does set of geometric progression for the given array sizes and graphs the avarage comparisons for each search type
@@ -895,7 +895,7 @@ void GeometricBestCase(int minArray, int maxArray, int arrayStep, bool debug) {
 	std::cout << "Geometric best case done" << std::endl << std::endl;
 }
 
-
+//graphs how the searches change over different ratios
 void GeometricRatios(int arrayCount, int ratioCount, bool debug) {
 
 	std::cout << "Graphing different geometric series middle key" << std::endl;
@@ -982,18 +982,19 @@ int main() {
 
 		//GeometricTest(10000, GetBestRatio(10000));
 
-		//GraphArithmeticRandomKeys(100, 30000, 100, 100, false);
+		GraphArithmeticRandomKeys(100, 30000, 100, 100, false);
 
-		//GraphArithmeticBestCase(100, 10000, 100, 10, false);
+		GraphArithmeticBestCase(100, 10000, 100, 10, false);
 
-		//GraphGeometricRandomKeys(100, 5000, 10, 1000, false);
+		GraphGeometricRandomKeys(100, 5000, 10, 1000, false);
 
-		//GraphGeometricRandomKeysExponentialsOnly(100, 30000, 50, 500, false);
+		GraphGeometricRandomKeysExponentialsOnly(100, 30000, 50, 500, false);
 
-		//GeometricBestCase(100, 5000, 100, false);
+		GeometricBestCase(100, 5000, 100, false);
 
 		GeometricRatios(5000, 500, false);
 
+		std::cout << "Task A done" << std::endl;
 		std::cin >> input;
 		system("cls");
 		//repeats until x is pressed

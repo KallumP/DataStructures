@@ -472,7 +472,6 @@ void GraphRandoms(Grapher* g) {
 	hasher->ResetTable();
 }
 
-
 //Demos part 3
 void DemoPart3(int minDigits, int maxDigits) {
 
@@ -496,6 +495,9 @@ void DemoPart3(int minDigits, int maxDigits) {
 }
 
 
+
+
+//chi squared values for geometric data
 double ChiSquaredGeo(Hash* hasher, double expected, std::string type) {
 
 	int keyCount = hasher->GetTableSize() / 5;
@@ -530,6 +532,7 @@ double ChiSquaredGeo(Hash* hasher, double expected, std::string type) {
 	return xSquared;
 }
 
+//chi squared values for sequential data
 double ChiSquaredSequential(Hash* hasher, double expected, std::string type) {
 
 	int keyCount = hasher->GetTableSize() / 5;
@@ -558,6 +561,7 @@ double ChiSquaredSequential(Hash* hasher, double expected, std::string type) {
 	return xSquared;
 }
 
+//chi squared data for mixed data
 double ChiSquared(Hash* hasher, double expected, std::string type) {
 
 	int keyCount = hasher->GetTableSize() / 5;
@@ -605,7 +609,7 @@ double ChiSquared(Hash* hasher, double expected, std::string type) {
 	return xSquared;
 }
 
-
+//Demos part 4
 void DemoPart4() {
 
 	Hash* hasher;
@@ -651,12 +655,11 @@ void DemoPart4() {
 
 int main()
 {
-	//DemoPart1();
+	DemoPart1();
 
-	//DemoPart2();
+	DemoPart2();
 
-	//DemoPart3(3, 6);
+	DemoPart3(3, 6);
 
 	DemoPart4();
-
 }
