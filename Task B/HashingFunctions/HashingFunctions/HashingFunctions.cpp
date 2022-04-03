@@ -512,12 +512,6 @@ double ChiSquaredGeo(Hash* hasher, double expected, std::string type) {
 			hasher->Insert(std::pow(i, j - 1));
 		values.push_back(100 * (double)hasher->GetCollisions() / keyCount);
 
-		Grapher* g = new Grapher();
-		int* hashTable = hasher->GetTable();
-		for (int i = 0; i < hasher->GetTableSize(); i++)
-			g->TakeRandom(i, hashTable[i], -1, -1);
-		g->DrawGraphRandom(L"Hashtable collision", L"Hashtable index", "_Hashtable " + type + " " + std::to_string(i) + ".png");
-
 		hasher->ResetTable();
 	}
 
